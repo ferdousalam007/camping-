@@ -1,13 +1,10 @@
-import { Button } from "@/components/ui/button";
+
+import MainLayouts from "@/components/Layouts/MainLayouts";
 
 function App() {
   return (
     <>
-     
-      <div>
-        <Button>Click me</Button>
-      </div>
-     
+      <MainLayouts />
     </>
   );
 }
