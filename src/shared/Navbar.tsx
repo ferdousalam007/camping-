@@ -17,9 +17,24 @@ const Navbar = () => {
           <NavigationMenuList>
             <div className="flex justify-end">
               <NavigationMenuItem>
-                <Link to="/movies">
+                <Link to="/">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Movies
+                    Home
+                  </NavigationMenuLink>
+                </Link>
+                <Link to="/products">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Products
+                  </NavigationMenuLink>
+                </Link>
+                <Link to="/cart">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Cart
+                  </NavigationMenuLink>
+                </Link>
+                <Link to="/productmanagement">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Product Management
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
