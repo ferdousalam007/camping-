@@ -1,9 +1,17 @@
-
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { Tent } from "lucide-react";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { RootState } from "@redux/store";
+import { Heart, ShoppingCart, Tent } from "lucide-react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
+   const cart = useSelector((state: RootState) => state.cart);
   return (
     <div className="mx-auto container  shrink-0">
       <div className="flex  items-center justify-between border-b-2 py-3 ">
@@ -15,7 +23,7 @@ const Navbar = () => {
         </Link>
         <NavigationMenu className="">
           <NavigationMenuList>
-            <div className="flex justify-end">
+            <div className="flex justify-end items-center">
               <NavigationMenuItem>
                 <Link to="/">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -37,6 +45,20 @@ const Navbar = () => {
                     Product Management
                   </NavigationMenuLink>
                 </Link>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <ShoppingCart className="cursor-pointer w-5" />
+                  <span className="ml-1">
+                    (
+                    {cart.items.reduce(
+                      (total, item) => total + item.quantity,
+                      0
+                    )}
+                    )
+                  </span>
+                </NavigationMenuLink>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <Heart className="cursor-pointer w-5 " />
+                </NavigationMenuLink>
               </NavigationMenuItem>
             </div>
           </NavigationMenuList>
