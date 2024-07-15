@@ -4,9 +4,9 @@ import { useGetAllProductsQuery } from '@/redux/api/baseApi';
 
 
 const RecommendedProduct = () => {
-  const { data: products, isLoading: isProductsLoading } =
+  const { data: productsData, isLoading: isProductsLoading } =
     useGetAllProductsQuery("");
-    console.log(products?.data)
+    const products = productsData?.data.result;
   return (
     <div className="container py-24">
       <SectionHeading
@@ -17,7 +17,7 @@ const RecommendedProduct = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          products?.data.map((product: any) => (
+          products?.map((product: any) => (
             <ProductCard
               key={product?._id}
               image={`${product?.imageUrl}`}

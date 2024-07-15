@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  
   DrawerClose,
   DrawerContent,
   DrawerDescription,
@@ -17,45 +16,46 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingBasket, Trash2 } from "lucide-react";
 import { Drawer } from "vaul";
 import { useDispatch, useSelector } from "react-redux";
-import { transferToCart } from "@/redux/slice/cartSlice";
+import { useGetAllProductsQuery } from "@/redux/api/baseApi";
+import {
+  closeModal,
+  removeFromWishList,
+  transferToCart,
+} from "@/redux/slice/cartSlice";
+import Modal from "@/components/Modal";
 // type Props = {
 //   openWishList: boolean;
 //   setOpenWishList: React.Dispatch<React.SetStateAction<boolean>>;
 // };
 
 const WishListDropdown = () => {
-     const dispatch = useDispatch();
-     const cartItems = useSelector((state:any) => state.cart.cartItems);
-     const wishlistItems = useSelector((state: any) => state.cart.wishlistItems);
-      const handleTransferToCart = (itemId: string) => {
-        dispatch(transferToCart(itemId));
-      };
-      console.log(wishlistItems);
+  const dispatch = useDispatch();
+  const { data, isLoading } = useGetAllProductsQuery("");
+  const wishlistItems = useSelector((state: any) => state.cart.wishList);
+  const cartItems = useSelector((state: any) => state.cart.items);
+  const modalMessage = useSelector((state: any) => state.cart.modalMessage);
+  const products = data?.data.result;
+  const handleTransferToCart = (itemId: string) => {
+    console.log(itemId);
+    dispatch(transferToCart(itemId));
+  };
+  const handleRemoveFromWishList = (itemId: string) => {
+    dispatch(removeFromWishList(itemId));
+  };
+  const handleCloseModal = () => {
+    dispatch(closeModal());
+  };
+  console.log(wishlistItems);
+  console.log(cartItems);
+  console.log(products);
   return (
     <div>
-      {/* <Drawer.Root direction="right">
-        <DrawerTrigger>
-          <Heart className="cursor-pointer w-5 " />
-        </DrawerTrigger>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-            <DrawerDescription>This action cannot be undone.</DrawerDescription>
-          </DrawerHeader>
-          <DrawerFooter>
-            <Button>Submit</Button>
-            <DrawerClose>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer.Root> */}
       <Drawer.Root direction="right">
         <Drawer.Trigger asChild>
           <Heart className="cursor-pointer w-5 " />
@@ -70,38 +70,61 @@ const WishListDropdown = () => {
                 </Drawer.Title>
                 <p className="text-zinc-600 mb-2">
                   <Table>
-                    <TableCaption>A list of your recent invoices.</TableCaption>
+                    <TableCaption>{`Total: ${wishlistItems.length} Item`}</TableCaption>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[100px]">Invoice</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Method</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead className="w-[100px]">Price</TableHead>
+                        <TableHead>Remove</TableHead>
                       </TableRow>
                     </TableHeader>
+
                     <TableBody>
-                      <TableRow>
-                        {/* {wishlistItems.map((item:any) => (
-                          <li key={item.id}>
-                            {`${item.name} - $${item.price}`}
-                            <button
-                              onClick={() => handleTransferToCart(item.id)}
-                            >
-                              Move to Cart
-                            </button>
-                          </li>
-                        ))} */}
-                        <TableCell className="font-medium">INV001</TableCell>
-                        <TableCell>Paid</TableCell>
-                        <TableCell>Credit Card</TableCell>
-                        <TableCell className="text-right">$250.00</TableCell>
-                      </TableRow>
+                      {wishlistItems.map((item: any) => {
+                        const product = products.find(
+                          (p: any) => p._id === item.id
+                        );
+                        if (!product) return "No product found";
+                        return (
+                          <TableRow key={product.id}>
+                            <TableCell className="text-green-600 font-medium">
+                              {" "}
+                              {`${product.name}`}
+                            </TableCell>
+                            <TableCell className="text-green-600 font-medium">
+                              {" "}
+                              {`$${product.price}`}
+                            </TableCell>
+                            <TableCell className="text-red-600 font-medium ">
+                              <button
+                                onClick={() =>
+                                  handleTransferToCart(product._id)
+                                }
+                              >
+                                <ShoppingBasket color="#0bf43a" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleRemoveFromWishList(product._id)
+                                }
+                              >
+                                <Trash2 color="#ff2e2e" />
+                              </button>
+                            </TableCell>
+                            <Modal
+                              id={product._id}
+                              isOpen={!!modalMessage}
+                              onClose={handleCloseModal}
+                              message={modalMessage || ""}
+                            />
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </p>
                 <p className="text-zinc-600 mb-8 mt-8">
                   <DrawerFooter>
-                    <Button>Add to cart</Button>
                     <DrawerClose>
                       <Button
                         className="w-full bg-red-600 text-white"

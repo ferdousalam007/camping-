@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Heart,  ShoppingCart, Star } from "lucide-react";
 import Rating from "react-rating";
 import { addToCart, addToWishList, removeFromWishList } from "@/redux/slice/cartSlice";
+import { RootState } from "@redux/store";
 
 //component
 const ProductDetails = () => {
@@ -25,7 +26,7 @@ const ProductDetails = () => {
     recommended,
   } = data?.data || {};
 
-  const cartItem = useSelector((state: any) =>
+  const cartItem = useSelector((state: RootState) =>
     state.cart.items.find((item: any) => item.id === id)
   );
  

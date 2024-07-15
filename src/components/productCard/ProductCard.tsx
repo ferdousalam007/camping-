@@ -47,7 +47,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <p className="text-lg mt-4 text-gray-400">{rating}</p>
           {/* @ts-expect-error their is no type declaration file for react rating*/}
           <Rating
-            placeholderRating={2.5}
+            placeholderRating={rating}
             readonly
             emptySymbol={<Star size={15} color="orange" />}
             placeholderSymbol={<Star size={15} color="orange" fill="orange" />}

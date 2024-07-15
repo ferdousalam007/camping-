@@ -67,3 +67,19 @@
       @apply bg-background text-foreground;
     }
   }
+  nav{
+z-index: 1 !important;
+}
+.custom-z{
+z-index: 2;
+}
+.custom-z-index-drawer{
+  z-index: 2;
+}
+.custom-z-index-wishlist{
+z-index: 1;
+
+}
+.custom-z-index{
+z-index: 9999999 !important;
+}

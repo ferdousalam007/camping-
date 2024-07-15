@@ -2,11 +2,13 @@ import MainLayouts from "@/components/Layouts/MainLayouts";
 import AboutUs from "@/pages/AboutUs";
 import Cart from "@/pages/Cart";
 import Home from "@/pages/Home";
+import Checkout from "@/pages/Checkout";
 import Notfound from "@/pages/Notfound";
 import ProductDetails from "@/pages/ProductDetails";
 import ProductManagement from "@/pages/ProductManagement";
 import Products from "@/pages/Products";
 import { createBrowserRouter } from "react-router-dom";
+import Success from "@/pages/Success";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,14 @@ const router = createBrowserRouter([
       {
         path: "/cart",
         element: <Cart />,
+      },
+      {
+        path: "/checkout",
+        element: <Checkout />,
+      },
+      {
+        path: "/success",
+        element: <Success />,
       },
       {
         path: "/aboutus",

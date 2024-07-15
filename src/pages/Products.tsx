@@ -35,7 +35,7 @@ const Products = () => {
   console.log(newResult)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const newProducts: Product[] = newResult?.result || [];
-console.log(newProducts)
+// console.log(newProducts)
   const handleClear = () => {
     setSearch("");
     setCategory("");
