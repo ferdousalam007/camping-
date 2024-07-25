@@ -46,6 +46,7 @@ const Categories = () => {
                       <div className="h-[250px] w-[250px]  bg-white rounded-full">
                         <img
                           src="https://vitasana.qodeinteractive.com/wp-content/uploads/2024/03/HOME-3-PRODUCT-06.jpg"
+                          // src="https://vitasana.qodeinteractive.com/wp-content/uploads/2024/02/h5-banner-img-3.jpg"
                           // src={image}
                           // alt={title}
                           className="w-full h-full  object-cover  rounded-full p-4 border-[20px]"
