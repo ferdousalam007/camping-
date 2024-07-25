@@ -67,6 +67,11 @@
       @apply bg-background text-foreground;
     }
   }
+
+
+body {
+font-family: 'Satoshi', sans-serif;
+}
   nav{
 z-index: 1 !important;
 }

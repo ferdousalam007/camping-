@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useGetAllProductsQuery } from "@/redux/api/baseApi";
 import React from "react";
 import { useLocation } from "react-router-dom";
@@ -24,7 +25,7 @@ const products = productsData?.data.result;
       <h2 className="text-xl font-bold mt-8">Order Details</h2>
      
       <ul>
-        {cartItems.map((item) => {
+        {cartItems.map((item:any) => {
           const product = products.find((p: any) => p._id === item.id);
 
           if (!product) return "No product found";

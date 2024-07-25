@@ -58,7 +58,7 @@ const WishListDropdown = () => {
     <div>
       <Drawer.Root direction="right">
         <Drawer.Trigger asChild>
-          <Heart className="cursor-pointer w-5 " />
+          <Heart className="cursor-pointer w-5 text-white" />
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed z-30  inset-0 bg-black/40" />

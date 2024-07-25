@@ -14,7 +14,7 @@ const RecommendedProduct = () => {
         paragraphText="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           products?.map((product: any) => (
@@ -24,6 +24,7 @@ const RecommendedProduct = () => {
               title={`${product?.name}`}
               description={`${product?.description}`}
               rating={parseFloat(product?.ratings)}
+              stock={product?.stock}
               id={product?._id}
             />
           ))
