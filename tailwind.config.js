@@ -19,6 +19,13 @@ module.exports = {
     extend: {
        backgroundImage: {
         'custom-bg': "url('./src/assets/bg.png')",
+        'according-bg': "url('./src/assets/according.jpg')",
+      },
+       boxShadow: {
+        'custom': '0px 0px 46px 0px rgba(0, 0, 0, .1)',
+      },
+      gridTemplateColumns: {
+        '65-35': '65% 35%',
       },
       colors: {
         border: "hsl(var(--border))",

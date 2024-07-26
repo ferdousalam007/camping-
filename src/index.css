@@ -88,3 +88,6 @@ z-index: 1;
 .custom-z-index{
 z-index: 9999999 !important;
 }
+ .custom-according .accordion-trigger.active {
+    background-color: #9c1c1c; /* Example active background color */
+  }

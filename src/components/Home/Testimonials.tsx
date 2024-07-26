@@ -1,6 +1,16 @@
 import SectionHeading from "@/components/SectionHeading";
 import { Card, CardContent } from "@/components/ui/card";
+import Rating from "react-rating";
+import { Star } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
+
+import img1 from "./../../assets/testimonial1.jpg";
+import img2 from "./../../assets/testimonial2.jpg";
+import img3 from "./../../assets/testimonial3.jpg";
+import img4 from "./../../assets/testimonial4.jpg";
+import img5 from "./../../assets/testimonial5.jpg";
+import img6 from "./../../assets/testimonial6.jpg";
+
 import {
   Carousel,
   CarouselContent,
@@ -18,6 +28,51 @@ import {
 import React from "react";
 import { Button } from "@/components/ui/button";
 
+const Testimonial = [
+  {
+    img: img1,
+    name: "John Doe",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+    rating: 5,
+  },
+  {
+    img: img2,
+    name: "John Smith",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+    rating: 4.5,
+  },
+  {
+    img: img3,
+    name: "John Smith",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+    rating: 4,
+  },
+  {
+    img: img4,
+    name: "John Smith",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+    rating: 3.8,
+  },
+  {
+    img: img5,
+    name: "John Smith",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+    rating: 4.8,
+  },
+  {
+    img: img6,
+    name: "John Smith",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+    rating: 5,
+  },
+];
+
 const Testimonials = () => {
   const plugin = React.useRef(
     Autoplay({ delay: 40000000, stopOnInteraction: true })
@@ -26,7 +81,7 @@ const Testimonials = () => {
     <div className="bg-custom-bg  bg-cover  bg-no-repeat min-h-[700px] w-full py-20">
       <div className="container">
         <SectionHeading
-         textColor="text-white"
+          textColor="text-white"
           headingText="Happy Customer"
           paragraphText="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium"
         />
@@ -40,37 +95,46 @@ const Testimonials = () => {
             className="container pt-8"
           >
             <CarouselContent>
-              {Array.from({ length: 5 }).map((_, index) => (
+              {Testimonial.map((testimonial, index) => (
                 <CarouselItem
                   key={index}
                   className="md:basis-1/2 lg:basis-1/4 "
                 >
-                  <div className="p-1">
-                    <Card className="border-0">
+                  <div className="">
+                    <Card className="border-0 ">
                       <CardContent className="flex flex-col items-center px-3 py-4 ">
-                        <div className="h-[250px] w-[250px]  bg-white rounded-full">
+                        <div className="h-[100px] w-[100px]">
                           <img
-                            src="https://vitasana.qodeinteractive.com/wp-content/uploads/2024/03/HOME-3-PRODUCT-06.jpg"
-                            // src={image}
-                            // alt={title}
-                            className="w-full h-full  object-cover  rounded-full p-4 border-[20px]"
+                            src={testimonial.img}
+                            alt={testimonial.name}
+                            className="w-full h-full  object-cover  rounded-full p-4 border-2"
                           />
                         </div>
                       </CardContent>
-                      <div className="bg-[#F9EFE5] rounded-lg pb-4 pt-[150px] mt-[-150px]">
-                        <h3 className="mt-4 text-center text-xl font-medium">
-                          {/* {title} */}name
-                        </h3>
-                        <div className=" mt-2 text-center">
-                          Total Products:50
-                        </div>
 
-                        <CardFooter className="flex justify-center p-4">
-                          <Button className="mt-4">
-                            {/* <ShoppingCartIcon className="w-5 h-5 mr-2 text-gray-100" /> */}
-                            {/* <Link to={`/products/${id}`}>View Details</Link> */}
-                            deatail
-                          </Button>
+                      <div className="bg-[#F9EFE5] rounded-lg pb-4 px-3 pt-3">
+                        <div className="flex flex-col items-center">
+                          {/* @ts-expect-error their is no type declaration file for react rating*/}
+                          <Rating
+                            placeholderRating={testimonial?.rating}
+                            readonly
+                            emptySymbol={<Star size={15} color="orange" />}
+                            placeholderSymbol={
+                              <Star size={15} color="orange" fill="orange" />
+                            }
+                            fullSymbol={
+                              <Star size={15} color="orange" fill="orange" />
+                            }
+                          />
+                        </div>
+                        <p className="mt-4 text-center text-base font-medium">
+                          {testimonial.description}
+                        </p>
+
+                        <CardFooter className="flex justify-center flex-col p-4">
+                          <div className=" mt-2 text-center uppercase font-medium">
+                            - {testimonial.name}
+                          </div>
                         </CardFooter>
                       </div>
                     </Card>
