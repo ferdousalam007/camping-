@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "@/redux/store";
@@ -10,47 +10,77 @@ import {
   increaseQuantity,
   clearCart,
 } from "@/redux/slice/cartSlice";
-import { useGetAllProductsQuery } from "@/redux/api/baseApi";
+import {
+  useGetAllProductsQuery,
+  useCreateOrderMutation,
+} from "@/redux/api/baseApi";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Product } from "@type/type";
+
+const userDetailsSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  phone: z
+    .string()
+    .regex(/^[0-9]{10}$/, { message: "Phone number must be 10 digits" }),
+  address: z.string().min(1, { message: "Address is required" }),
+});
+
+type UserDetails = z.infer<typeof userDetailsSchema>;
 
 const Checkout = () => {
+  const [paymentMethod, setPaymentMethod] = React.useState("cash");
+  const [createOrder, { isLoading }] = useCreateOrderMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cartItems = useSelector((state: RootState) => state.cart.items);
-  
-  const { data: productsData } = useGetAllProductsQuery("");
-  const products = productsData?.data.result;
 
-  const [userDetails, setUserDetails] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
+  const { data: productsData } = useGetAllProductsQuery("");
+  const products: Product[] | undefined = productsData?.data.result;
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UserDetails>({
+    resolver: zodResolver(userDetailsSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+    },
   });
 
-  const [paymentMethod, setPaymentMethod] = useState("cash");
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUserDetails({ ...userDetails, [name]: value });
-  };
-
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async (data: UserDetails) => {
     const orderDetails = {
-      userDetails,
+      ...data,
       cartItems,
       totalPrice,
     };
-
     if (paymentMethod === "cash") {
       // Deduct stock and redirect to success page
       cartItems.forEach((item) => {
-        const product = products.find((p: any) => p._id === item.id);
+        const product = products?.find((p: Product) => p._id === item.id);
         if (product) {
           dispatch(decreaseQuantity(item.id));
         }
       });
-      dispatch(clearCart());
-      navigate("/success", { state: orderDetails });
+
+      try {
+        await createOrder(orderDetails).then(() => {
+          navigate("/success", {
+            state: { ...orderDetails, userDetails: data },
+          });
+
+          dispatch(clearCart());
+        });
+      } catch (error) {
+        console.error("Error placing order:", error);
+        // Handle error appropriately (e.g., display an error message)
+      }
     } else if (paymentMethod === "stripe") {
       // Redirect to Stripe payment page
       // After successful payment, deduct stock and redirect to success page
@@ -71,61 +101,63 @@ const Checkout = () => {
   };
 
   const totalPrice = cartItems.reduce((total, item) => {
-    const product = products.find((p: any) => p._id === item.id);
-    return total + (product ? product.price * item.quantity : 0);
+    const product = products?.find((p: Product) => p._id === item.id);
+    return total + (product ? product?.price * item.quantity : 0);
   }, 0);
 
   return (
     <div className="container py-12">
       <h1 className="text-2xl font-bold mb-4">Checkout</h1>
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit(handlePlaceOrder)}>
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Name
           </label>
-          <Input
-            type="text"
+          <Controller
             name="name"
-            value={userDetails.name}
-            onChange={handleInputChange}
-            required
+            control={control}
+            render={({ field }) => <Input {...field} />}
           />
+          {errors.name && <p className="text-red-500">{errors.name.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Email
           </label>
-          <Input
-            type="email"
+          <Controller
             name="email"
-            value={userDetails.email}
-            onChange={handleInputChange}
-            required
+            control={control}
+            render={({ field }) => <Input {...field} />}
           />
+          {errors.email && (
+            <p className="text-red-500">{errors.email.message}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Phone
           </label>
-          <Input
-            type="tel"
+          <Controller
             name="phone"
-            value={userDetails.phone}
-            onChange={handleInputChange}
-            required
+            control={control}
+            render={({ field }) => <Input {...field} />}
           />
+          {errors.phone && (
+            <p className="text-red-500">{errors.phone.message}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Address
           </label>
-          <Input
-            type="text"
+          <Controller
             name="address"
-            value={userDetails.address}
-            onChange={handleInputChange}
-            required
+            control={control}
+            render={({ field }) => <Input {...field} />}
           />
+          {errors.address && (
+            <p className="text-red-500">{errors.address.message}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -154,38 +186,44 @@ const Checkout = () => {
             </label>
           </div>
         </div>
-        <Button onClick={handlePlaceOrder}>Place Order</Button>
+        <Button type="submit" disabled={isLoading}>
+          Place Order
+        </Button>
       </form>
 
       <h2 className="text-xl font-bold mt-8">Cart Items</h2>
-      <ul>
-        {cartItems.map((item) => {
-          const product = products.find((p: any) => p._id === item.id);
+      {cartItems.length === 0 ? (
+        <p>You have no products added to your cart.</p>
+      ) : (
+        <ul>
+          {cartItems.map((item) => {
+            const product = products?.find((p: Product) => p._id === item.id);
 
-          if (!product) return "No product found";
-          return (
-            <li key={item.id}>
-              <h2>{product.name}</h2>
-              <p>Price: ${product.price}</p>
-              <p>Quantity: {item.quantity}</p>
-              <button
-                onClick={() => handleDecrease(item.id)}
-                disabled={item.quantity <= 1}
-              >
-                -
-              </button>
-              <button
-                onClick={() => handleIncrease(item.id)}
-                disabled={item.quantity >= product.stock}
-              >
-                +
-              </button>
-              <button onClick={() => handleRemove(item.id)}>Remove</button>
-            </li>
-          );
-        })}
-      </ul>
-      <h2>Total: ${totalPrice}</h2>
+            if (!product) return "No product found";
+            return (
+              <li key={item.id}>
+                <h2>{product.name}</h2>
+                <p>Price: ${product.price}</p>
+                <p>Quantity: {item.quantity}</p>
+                <button
+                  onClick={() => handleDecrease(item.id)}
+                  disabled={item.quantity <= 1}
+                >
+                  -
+                </button>
+                <button
+                  onClick={() => handleIncrease(item.id)}
+                  disabled={item.quantity >= (product?.stock || 0)}
+                >
+                  +
+                </button>
+                <button onClick={() => handleRemove(item.id)}>Remove</button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {cartItems.length > 0 && <h2>Total: ${totalPrice}</h2>}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { useLocation } from "react-router-dom";
 const Success = () => {
   const location = useLocation();
   const { userDetails, cartItems, totalPrice } = location.state || {};
+  console.log(userDetails, cartItems, totalPrice);
 const { data: productsData } = useGetAllProductsQuery("");
 const products = productsData?.data.result;
  if (!cartItems) {
@@ -17,16 +18,16 @@ const products = productsData?.data.result;
       <p>Thank you for your order. Your order has been placed successfully.</p>
 
       <h2 className="text-xl font-bold mt-8">Customer Information</h2>
-      <p>Name: {userDetails.name}</p>
-      <p>Email: {userDetails.email}</p>
-      <p>Phone: {userDetails.phone}</p>
-      <p>Address: {userDetails.address}</p>
+      <p>Name: {userDetails?.name}</p>
+      <p>Email: {userDetails?.email}</p>
+      <p>Phone: {userDetails?.phone}</p>
+      <p>Address: {userDetails?.address}</p>
 
       <h2 className="text-xl font-bold mt-8">Order Details</h2>
      
       <ul>
         {cartItems.map((item:any) => {
-          const product = products.find((p: any) => p._id === item.id);
+          const product = products?.find((p: any) => p._id === item.id);
 
           if (!product) return "No product found";
           return (

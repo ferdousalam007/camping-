@@ -51,9 +51,7 @@ const WishListDropdown = () => {
   const handleCloseModal = () => {
     dispatch(closeModal());
   };
-  console.log(wishlistItems);
-  console.log(cartItems);
-  console.log(products);
+ 
   return (
     <div>
       <Drawer.Root direction="right">

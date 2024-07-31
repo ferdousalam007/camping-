@@ -7,16 +7,40 @@ import { Product } from "@type/type";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import ProductCard from "@/components/productCard/ProductCard";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+interface ApiResponse {
+  page: number;
+  limit: number;
+  total: number;
+  result: Product[];
+}
 
 const Products = () => {
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetCategoriesQuery("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [sort, setSort] = useState<"asc" | "desc" | undefined>();
-   const [page, setPage] = useState(1);
-   const [limit, setLimit] = useState(10);
-  const { data: products,isLoading, refetch } = useGetProductsQuery({
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const {
+    data: products,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetProductsQuery<ApiResponse>({
     search,
     category,
     minPrice,
@@ -25,43 +49,29 @@ const Products = () => {
     page,
     limit,
   });
-  const { data: categories, isLoading: isCategoriesLoading } =
-    useGetCategoriesQuery("");
-    console.log(isCategoriesLoading);
 
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const apiLimit = products?.data?.limit; //this is api response limit
+  const apiTotal = products?.data?.total;
   const newResult: any = products?.data || [];
-  console.log(newResult)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const newProducts: Product[] = newResult?.result || [];
-// console.log(newProducts)
+  const totalPages = Math.ceil(apiTotal / apiLimit);
+
   const handleClear = () => {
     setSearch("");
     setCategory("");
     setMinPrice(undefined);
     setMaxPrice(undefined);
     setSort(undefined);
-    refetch();
     setPage(1);
+    setLimit(10); // Resetting limit to its initial value
+    refetch();
   };
-    const handleNextPage = () => {
-      setPage((prev) => prev + 1);
-      refetch();
-    };
 
-    const handlePreviousPage = () => {
-      if (page > 1) {
-        setPage((prev) => prev - 1);
-        refetch();
-      }
-    };
+  const handlePageChange = (pageNumber: number) => {
+    setPage(pageNumber);
+    refetch();
+  };
 
-    const handlePageChange = (pageNumber: number) => {
-      setPage(pageNumber);
-      refetch();
-    };
-const totalPages = Math.ceil(newProducts.length / limit);
   return (
     <div className="container">
       <div className="py-12">
@@ -72,27 +82,27 @@ const totalPages = Math.ceil(newProducts.length / limit);
       </div>
       <div>
         <Input
-          type="test"
+          type="text"
           placeholder="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="">All Categories</option>
-          {categories?.data.map((category: { _id: string; name: string }) => (
-            <option key={category._id} value={category._id}>
-              {category.name}
+          {categories?.data?.map((cat: { _id: string; name: string }) => (
+            <option key={cat._id} value={cat._id}>
+              {cat.name}
             </option>
           ))}
         </select>
 
-        <input
+        <Input
           type="number"
           placeholder="Min Price"
           value={minPrice ?? ""}
           onChange={(e) => setMinPrice(Number(e.target.value))}
         />
-        <input
+        <Input
           type="number"
           placeholder="Max Price"
           value={maxPrice ?? ""}
@@ -108,44 +118,78 @@ const totalPages = Math.ceil(newProducts.length / limit);
         </select>
         <button onClick={handleClear}>Clear</button>
 
+        {/* Limit adjustment input */}
+        <div>
+          <label htmlFor="productsPerPage">Products per Page:</label>
+          <input
+            id="productsPerPage"
+            type="number"
+            defaultValue={limit}
+            onChange={(e) => {
+              const newLimit = parseInt(e.target.value, 10);
+              if (!isNaN(newLimit)) {
+                setLimit(newLimit);
+                // Optionally, trigger a re-fetch of products here if needed
+              }
+            }}
+          />
+        </div>
+
+        {isLoading && <p>Loading...</p>}
+        {isError && <p>Something went wrong. Please try again later.</p>}
+
         <div className="my-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ">
-            {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              newProducts?.map((product: any) => (
-                <ProductCard
-                  key={product?._id}
-                  image={`${product?.imageUrl}`}
-                  title={`${product?.name}`}
-                  description={`${product?.description}`}
-                  rating={parseFloat(product?.ratings)}
-                  id={product?._id}
-                />
-              ))
-            }
+            {newProducts.map((product: Product) => (
+              <ProductCard
+                key={product._id}
+                image={product.imageUrl}
+                title={product.name}
+                description={product.description}
+                rating={parseFloat(product.ratings)}
+                id={product._id}
+                stock={product.stock}
+              />
+            ))}
           </div>
         </div>
       </div>
-      <div>
-        <button onClick={handlePreviousPage} disabled={page === 1}>
-          Previous
-        </button>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => handlePageChange(index + 1)}
-            disabled={page === index + 1}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button
-          onClick={handleNextPage}
-          disabled={products && page * limit >= products.total}
-        >
-          Next
-        </button>
-      </div>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            {page === 1 ? (
+              "Previous"
+            ) : (
+              <PaginationPrevious
+                href="#"
+                onClick={() => handlePageChange(page - 1)}
+              />
+            )}
+          </PaginationItem>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <PaginationItem key={index + 1}>
+              <PaginationLink
+                href="#"
+                isActive={page === index + 1}
+                onClick={() => handlePageChange(index + 1)}
+              >
+                {index + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            {page === totalPages ? (
+              "Next"
+            ) : (
+              <PaginationNext
+                href="#"
+                onClick={() => handlePageChange(page + 1)}
+              />
+            )}
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 };
