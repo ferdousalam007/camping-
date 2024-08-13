@@ -7,18 +7,20 @@ import {
 } from "@/components/ui/dialog";
 import { Product } from "@type/type";
 import UpdateForm from "./UpdateForm";
-type UpdateProductProps ={
+type UpdateProductProps = {
   isOpen: boolean;
   onClose: () => void;
   selectedProduct: Product | null;
-}
+
+};
 
 const UpdateProductDialog: React.FC<UpdateProductProps> = ({
   selectedProduct,
   isOpen,
   onClose,
+
 }) => {
-  console.log(selectedProduct);
+
 
   if (!selectedProduct) {
     return <div>No product selected</div>;
@@ -29,12 +31,15 @@ const UpdateProductDialog: React.FC<UpdateProductProps> = ({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {" "}
               <h1 className="text-3xl font-bold mb-4">Update Product</h1>
             </DialogTitle>
             <DialogClose />
           </DialogHeader>
-          <UpdateForm selectedProduct={selectedProduct} onClose={onClose} />
+          <UpdateForm
+            selectedProduct={selectedProduct}
+            onClose={onClose}
+        
+          />
         </DialogContent>
       </Dialog>
     </div>

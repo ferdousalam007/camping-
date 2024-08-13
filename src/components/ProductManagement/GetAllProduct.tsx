@@ -10,67 +10,79 @@ import {
 } from "@/components/ui/table";
 import {
   useDeleteProductMutation,
-  useGetAllProductsQuery,
+  useGetProductsQuery,
   useGetCategoriesQuery,
 } from "@/redux/api/baseApi";
-import { Product } from "@type/type";
+import { Product, TApiResponse } from "@type/type";
 import { FilePenLine, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UpdateProductDialog from "./UpdateProductDialog";
 import { Slider } from "@/components/ui/slider";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import CreateCategoryDialog from "./CreateCategoryDialog";
 
 const GetAllProduct = () => {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetCategoriesQuery("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 1000]); // Default price range
-  const [sort, setSort] = useState("asc");
+  // const [minPrice, setMinPrice] = useState<number | undefined>();
+  // const [maxPrice, setMaxPrice] = useState<number | undefined>();
+    const [sort, setSort] = useState<"asc" | "desc" | "">();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+   const [priceRange, setPriceRange] = useState([0, 1000]);
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [deleteProduct, { isLoading: isDeleting, isError: isDeleted }] =
-    useDeleteProductMutation();
-
   const {
     data: products,
     isLoading,
+    isError,
     refetch,
-    error,
-  } = useGetAllProductsQuery({
-    page,
-    limit,
+  } = useGetProductsQuery<TApiResponse>({
     search,
     category,
-    minPrice: priceRange[0],
+    minPrice: priceRange[0], 
     maxPrice: priceRange[1],
     sort,
+    page,
+    limit,
+  
   });
 
-  const { data: categories, isLoading: isCategoriesLoading } =
-    useGetCategoriesQuery("");
+  const apiLimit = products?.data?.limit; //this is api response limit
+  const apiTotal = products?.data?.total;
+  const newResult: TApiResponse = products?.data || [];
+  const newProducts: Product[] = newResult?.result || [];
+  const totalPages = Math.ceil(apiTotal / apiLimit);
 
-  const handleNextPage = () => {
-    setPage((prev) => prev + 1);
-  };
-
-  const handlePreviousPage = () => {
-    if (page > 1) {
-      setPage((prev) => prev - 1);
-    }
+  const handleClear = () => {
+    setSearch("");
+    setCategory("");
+    setSort("");
+    setPage(1);
+    setLimit(10);
+    refetch();
   };
 
   const handlePageChange = (pageNumber: number) => {
     setPage(pageNumber);
+    refetch();
   };
+
+ 
+  const [deleteProduct, { isLoading: isDeleting, isError: isDeleted }] =
+    useDeleteProductMutation();
+
+
 
   const handleDeleteProduct = (productId: string) => {
     deleteProduct(productId).then(() => refetch());
@@ -81,8 +93,9 @@ const GetAllProduct = () => {
     setIsDialogOpen(true);
   };
 
-  const handlePriceRangeChange = (value: number[]) => {
-    setPriceRange(value);
+  const handlePriceRangeChange = (newPriceRange: [number, number]) => {
+    setPriceRange(newPriceRange);
+    setPage(1); // Reset page to 1 when price range changes
   };
 
   if (isLoading) {
@@ -93,13 +106,7 @@ const GetAllProduct = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Error fetching products.
-      </div>
-    );
-  }
+ 
 
   if (products?.result?.length === 0) {
     return (
@@ -116,9 +123,6 @@ const GetAllProduct = () => {
       </div>
     );
   }
-
-  const newProducts: Product[] = products?.data?.result || [];
-  const totalPages = Math.ceil((products?.total ?? 0) / limit);
 
   return (
     <div>
@@ -149,27 +153,36 @@ const GetAllProduct = () => {
             onValueChange={handlePriceRangeChange}
             min={0}
             max={1000}
-            step={10}
+            step={1}
             className="mt-2"
           />
         </div>
         <select
           value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="border p-2 mt-2"
+          onChange={(e) => setSort(e.target.value as "asc" | "desc")}
         >
-          <option value="asc">Price: Low to High</option>
-          <option value="desc">Price: High to Low</option>
+          <option value="">Sort by Price</option>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
         </select>
+        <div>
+          <label htmlFor="productsPerPage">Products per Page:</label>
+          <input
+            id="productsPerPage"
+            type="number"
+            defaultValue={limit}
+            onChange={(e) => {
+              const newLimit = parseInt(e.target.value, 10);
+              if (!isNaN(newLimit)) {
+                setLimit(newLimit);
+                // Optionally, trigger a re-fetch of products here if needed
+              }
+            }}
+          />
+        </div>
         <button
           onClick={() => {
-            // Reset all filter state variables
-            setSearch("");
-            setCategory("");
-            setPriceRange([0, 1000]);
-            setSort("asc");
-            // Call refetch to apply the reset filters
-            refetch();
+            handleClear();
           }}
           className="ml-2 p-2 bg-blue-500 text-white"
         >
@@ -193,7 +206,7 @@ const GetAllProduct = () => {
             <TableRow key={product._id}>
               <TableCell className="font-medium">
                 <img
-                  src={product.imageUrl}
+                  src={product.imageUrl[0]}
                   alt={product.name}
                   className="w-full h-[80px] object-cover"
                 />
@@ -210,6 +223,7 @@ const GetAllProduct = () => {
                   onClick={() => handleEditClick(product)}
                   className="cursor-pointer text-right inline-block ml-3 text-green-700"
                 />
+               
               </TableCell>
             </TableRow>
           ))}
@@ -218,27 +232,35 @@ const GetAllProduct = () => {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious
-                  onClick={handlePreviousPage}
-                  isActive={page === 1}
-                />
+                {page === 1 ? (
+                  "Previous"
+                ) : (
+                  <PaginationPrevious
+                    href="#"
+                    onClick={() => handlePageChange(page - 1)}
+                  />
+                )}
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, index) => (
                 <PaginationItem key={index + 1}>
                   <PaginationLink
                     href="#"
-                    onClick={() => handlePageChange(index + 1)}
                     isActive={page === index + 1}
+                    onClick={() => handlePageChange(index + 1)}
                   >
-                    {index + 1} 
+                    {index + 1}
                   </PaginationLink>
                 </PaginationItem>
               ))}
               <PaginationItem>
-                <PaginationNext
-                  onClick={handleNextPage}
-                  isActive={products && page * limit >= products.total}
-                />
+                {page === totalPages ? (
+                  "Next"
+                ) : (
+                  <PaginationNext
+                    href="#"
+                    onClick={() => handlePageChange(page + 1)}
+                  />
+                )}
               </PaginationItem>
             </PaginationContent>
           </Pagination>
@@ -249,6 +271,7 @@ const GetAllProduct = () => {
         onClose={() => setIsDialogOpen(false)}
         selectedProduct={selectedProduct}
       />
+    
     </div>
   );
 };

@@ -3,26 +3,20 @@ import {
   useGetCategoriesQuery,
   useGetProductsQuery,
 } from "@/redux/api/baseApi";
-import { Product } from "@type/type";
+import { Product, TApiResponse } from "@type/type";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import ProductCard from "@/components/productCard/ProductCard";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-interface ApiResponse {
-  page: number;
-  limit: number;
-  total: number;
-  result: Product[];
-}
+
 
 const Products = () => {
   const { data: categories, isLoading: isCategoriesLoading } =
@@ -40,7 +34,7 @@ const Products = () => {
     isLoading,
     isError,
     refetch,
-  } = useGetProductsQuery<ApiResponse>({
+  } = useGetProductsQuery<TApiResponse>({
     search,
     category,
     minPrice,
@@ -52,7 +46,7 @@ const Products = () => {
 
   const apiLimit = products?.data?.limit; //this is api response limit
   const apiTotal = products?.data?.total;
-  const newResult: any = products?.data || [];
+  const newResult: TApiResponse = products?.data || [];
   const newProducts: Product[] = newResult?.result || [];
   const totalPages = Math.ceil(apiTotal / apiLimit);
 
@@ -63,7 +57,7 @@ const Products = () => {
     setMaxPrice(undefined);
     setSort(undefined);
     setPage(1);
-    setLimit(10); // Resetting limit to its initial value
+    setLimit(10); 
     refetch();
   };
 

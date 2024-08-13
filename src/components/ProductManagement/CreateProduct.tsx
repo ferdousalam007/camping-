@@ -5,6 +5,9 @@ import {
   useCreateProductMutation,
   useGetCategoriesQuery,
 } from "@/redux/api/baseApi";
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   price: z.number().min(0, "Price must be a positive number"),
@@ -12,9 +15,13 @@ const productSchema = z.object({
   description: z.string().min(1, "Description is required"),
   category: z.string().min(1, "Category is required"),
   ratings: z.number().min(0).max(5).optional(),
-  image: z.instanceof(FileList).refine((files) => files.length > 0, {
-    message: "Image is required",
-  }),
+  images: z
+    .array(
+      z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "Image size must be less than 5MB",
+      })
+    )
+    .max(5, "You can upload a maximum of 5 images"),
   featured: z.boolean().optional(),
   recommended: z.boolean().optional(),
 });
@@ -27,6 +34,8 @@ const CreateProduct = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
   });
@@ -35,6 +44,33 @@ const CreateProduct = () => {
     useCreateProductMutation();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
+
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const currentImages = watch("images") || [];
+      const newImages = [...currentImages, ...acceptedFiles].slice(0, 5); // Limit to 5 images
+      setValue("images", newImages);
+      setImagePreviews(newImages.map((file) => URL.createObjectURL(file)));
+    },
+    [setValue, watch]
+  );
+
+  const removeImage = (index: number) => {
+    const currentImages = watch("images") || [];
+    const newImages = currentImages.filter((_, i) => i !== index);
+    setValue("images", newImages);
+    setImagePreviews(newImages.map((file) => URL.createObjectURL(file)));
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    accept: "image/*" as any,
+    multiple: true,
+    maxSize: 5 * 1024 * 1024, // 5MB
+  });
 
   const onSubmit = async (data: ProductFormValues) => {
     const formData = new FormData();
@@ -52,14 +88,18 @@ const CreateProduct = () => {
     if (data.recommended !== undefined) {
       formData.append("recommended", data.recommended.toString());
     }
-    formData.append("image", data.image[0]);
+    data.images.forEach((image) => {
+      formData.append("images", image);
+    });
 
     await createProduct(formData);
 
     if (isSuccess) {
       reset();
+      setImagePreviews([]);
     }
   };
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-4">Create Product</h1>
@@ -183,20 +223,41 @@ const CreateProduct = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 items-end gap-4">
           <div>
             <label
-              htmlFor="image"
+              htmlFor="images"
               className="block text-sm font-medium text-gray-700"
             >
-              Image:
+              Images:
             </label>
-            <input
-              id="image"
-              type="file"
-              {...register("image")}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer"
-            />
-            {errors.image && (
-              <p className="mt-2 text-red-600">{`image is required provide a file like png jpeg jpg ${errors.image.message}`}</p>
+            <div
+              {...getRootProps()}
+              className={`mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer ${
+                isDragActive ? "bg-gray-100" : ""
+              }`}
+            >
+              <input {...getInputProps()} />
+              <p>Drag & drop some files here, or click to select files</p>
+            </div>
+            {errors.images && (
+              <p className="mt-2 text-red-600">{errors.images.message}</p>
             )}
+            <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+              {imagePreviews.map((preview, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    className="w-full h-auto"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-0 right-0 mt-1 mr-1 bg-red-600 text-white rounded-full p-1 text-xs"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
           <div>
             <label htmlFor="featured" className="inline-flex items-center">

@@ -1,17 +1,22 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
+import { useState, useEffect, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
 import {
   useUpdateSingleProductMutation,
   useGetCategoriesQuery,
 } from "@/redux/api/baseApi";
 import { Product } from "@type/type";
+import CreateCategoryDialog from "./CreateCategoryDialog";
+import { Button } from "@/components/ui/button";
+
+const MAX_IMAGES = 5;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const isValidImageFile = (file?: File) => {
-  if (!file) return true;
   const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-  return validTypes.includes(file.type);
+  return file && validTypes.includes(file.type) && file.size <= MAX_IMAGE_SIZE;
 };
 
 const productSchema = z.object({
@@ -21,18 +26,23 @@ const productSchema = z.object({
   description: z.string().min(1, "Description is required"),
   category: z.string().min(1, "Category is required"),
   ratings: z.number().min(0).max(5).optional(),
-  image: z
-    .union([
-      z
-        .instanceof(FileList)
-        .refine((files) => files.length > 0 && isValidImageFile(files[0]), {
-          message: "Please upload a valid image file (jpg, png, jpeg).",
-        }),
-      z.string().url("Please enter a valid image URL."),
-    ])
-    .refine((value) => value instanceof FileList || typeof value === "string", {
-      message: "Please upload an image file or provide an image URL.",
-    }),
+  images: z
+    .instanceof(FileList)
+    .nullable()
+    .refine(
+      (files) =>
+        files === null || (files.length > 0 && files.length <= MAX_IMAGES),
+      {
+        message: `Please upload between 1 and ${MAX_IMAGES} images.`,
+      }
+    )
+    .refine(
+      (files) => files === null || Array.from(files).every(isValidImageFile),
+      {
+        message:
+          "Each image must be a valid file type (jpg, png, jpeg) and under 5MB.",
+      }
+    ),
   featured: z.boolean().optional(),
   recommended: z.boolean().optional(),
 });
@@ -48,6 +58,19 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
   selectedProduct,
   onClose,
 }) => {
+  const [previews, setPreviews] = useState<string[]>(
+    Array.isArray(selectedProduct.imageUrl)
+      ? selectedProduct.imageUrl
+      : selectedProduct.imageUrl
+      ? selectedProduct.imageUrl.split(",")
+      : []
+  );
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+
+  const handleCategoryClick = () => {
+    setIsCategoriesOpen(true);
+  };
+
   const {
     name,
     price,
@@ -66,6 +89,8 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -75,7 +100,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
       description,
       category: category?._id,
       ratings,
-      image: imageUrl,
+      images: null,
       featured,
       recommended,
     },
@@ -85,6 +110,29 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     useUpdateSingleProductMutation();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
+
+  const watchImages = watch("images");
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const files = acceptedFiles.slice(0, MAX_IMAGES);
+      setPreviews(files.map((file) => URL.createObjectURL(file)));
+      setValue("images", files as any); // Update the form's image field
+    },
+    [setValue]
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: "image/jpeg, image/png, image/jpg",
+    maxSize: MAX_IMAGE_SIZE,
+    multiple: true,
+    maxFiles: MAX_IMAGES,
+  });
+
+  const handleRemoveImage = (index: number) => {
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const onSubmit = async (data: ProductFormValues) => {
     const formData = new FormData();
@@ -103,16 +151,12 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     if (data.recommended !== undefined) {
       formData.append("recommended", data.recommended.toString());
     }
-    if (data.image instanceof FileList && data.image.length > 0) {
-      formData.append("image", data.image[0]);
-    } else if (typeof data.image === "string") {
-      formData.append("imageUrl", data.image);
-    } else {
-      errors.image = {
-        type: "manual",
-        message: "Please upload an image file or provide an image URL.",
-      };
-      return;
+    if (watchImages && watchImages.length > 0) {
+      Array.from(watchImages).forEach((file) =>
+        formData.append("images", file)
+      );
+    } else if (imageUrl) {
+      formData.append("imageUrl", imageUrl);
     }
 
     await updateProduct({ id: _id, formData: formData });
@@ -122,6 +166,16 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
       onClose();
     }
   };
+
+  useEffect(() => {
+    if (selectedProduct.imageUrl) {
+      setPreviews(
+        Array.isArray(selectedProduct.imageUrl)
+          ? selectedProduct.imageUrl
+          : selectedProduct.imageUrl.split(",")
+      );
+    }
+  }, [selectedProduct.imageUrl]);
 
   if (isCategoriesLoading) return <div>Loading categories...</div>;
 
@@ -174,7 +228,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
             <input
               id="price"
               type="number"
-              step="0.01"
+              step="1"
               {...register("price", { valueAsNumber: true })}
               className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
@@ -207,6 +261,12 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
               className="block text-sm font-medium text-gray-700"
             >
               Category:
+              <Button
+                onClick={handleCategoryClick}
+                className="cursor-pointer text-right inline-block ml-3 text-white"
+              >
+                Create Category
+              </Button>
             </label>
             <select
               id="category"
@@ -244,70 +304,83 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
             )}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 items-end gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label
-              htmlFor="image"
+              htmlFor="featured"
               className="block text-sm font-medium text-gray-700"
             >
-              Image:
+              Featured:
             </label>
-            <div>
-              {imageUrl && (
-                <img
-                  src={imageUrl}
-                  alt="Product Image"
-                  className="w-[60px] h-[60px]"
-                />
-              )}
-            </div>
             <input
-              id="image"
-              type="file"
-              {...register("image")}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer"
+              id="featured"
+              type="checkbox"
+              {...register("featured")}
+              className="mt-1 block w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
             />
-            {errors.image && (
-              <p className="mt-2 text-red-600">{errors.image.message}</p>
-            )}
           </div>
           <div>
-            <label htmlFor="featured" className="inline-flex items-center">
-              <input
-                id="featured"
-                type="checkbox"
-                {...register("featured")}
-                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
-              />
-              <span className="ml-2 text-sm text-gray-600">Featured</span>
+            <label
+              htmlFor="recommended"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Recommended:
             </label>
-            <label htmlFor="recommended" className="inline-flex items-center">
-              <input
-                id="recommended"
-                type="checkbox"
-                {...register("recommended")}
-                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 ml-2"
-              />
-              <span className="ml-2 text-sm text-gray-600">Recommended</span>
-            </label>
+            <input
+              id="recommended"
+              type="checkbox"
+              {...register("recommended")}
+              className="mt-1 block w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            />
           </div>
         </div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+
+        <div
+          {...getRootProps()}
+          className="border-2 border-dashed border-gray-300 p-4 rounded-md cursor-pointer"
         >
-          Submit
-        </button>
-        {isError && (
-          <p className="mt-2 text-red-600">
-            Error: {(error as Error).message || "Something went wrong"}
+          <input {...getInputProps()} />
+          <p className="text-center text-gray-700">
+            Drag & drop some files here, or click to select files
           </p>
+        </div>
+
+        <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+          {previews.map((preview, index) => (
+            <div key={index} className="relative">
+              <img
+                src={preview}
+                alt={`Preview ${index + 1}`}
+                className="object-cover h-20 w-full rounded-md"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveImage(index)}
+                className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs"
+              >
+                X
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {isError && (
+          <p className="mt-2 text-red-600">{(error as Error).message}</p>
         )}
-        {isSuccess && (
-          <p className="mt-2 text-green-600">Product updated successfully!</p>
-        )}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            {isLoading ? "Updating..." : "Update Product"}
+          </button>
+        </div>
       </form>
+      <CreateCategoryDialog
+        open={isCategoriesOpen}
+        onClose={() => setIsCategoriesOpen(false)}
+      />
     </div>
   );
 };

@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useGetAllProductsQuery } from "@/redux/api/baseApi";
-import React from "react";
+import { useGetAllproductQuery } from "@/redux/api/baseApi";
+
 import { useLocation } from "react-router-dom";
 
 const Success = () => {
   const location = useLocation();
   const { userDetails, cartItems, totalPrice } = location.state || {};
-  console.log(userDetails, cartItems, totalPrice);
-const { data: productsData } = useGetAllProductsQuery("");
-const products = productsData?.data.result;
- if (!cartItems) {
-   return <div>No items in cart</div>;
- }
+  // console.log(userDetails, cartItems, totalPrice);
+  const { data: productsData } = useGetAllproductQuery("");
+  const products = productsData?.data.result;
+  if (!cartItems) {
+    return <div>No items in cart</div>;
+  }
   return (
     <div className="container py-12">
       <h1 className="text-2xl font-bold mb-4">Order Placed Successfully!</h1>
@@ -24,9 +24,9 @@ const products = productsData?.data.result;
       <p>Address: {userDetails?.address}</p>
 
       <h2 className="text-xl font-bold mt-8">Order Details</h2>
-     
+
       <ul>
-        {cartItems.map((item:any) => {
+        {cartItems.map((item: any) => {
           const product = products?.find((p: any) => p._id === item.id);
 
           if (!product) return "No product found";
@@ -36,6 +36,7 @@ const products = productsData?.data.result;
               <p>Price: ${product.price}</p>
               <p>Quantity: {item.quantity}</p>
               <p>Total: ${product.price * item.quantity}</p>
+              <p>Total Price: ${totalPrice}</p>
             </li>
           );
         })}

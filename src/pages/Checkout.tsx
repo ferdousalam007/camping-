@@ -11,7 +11,7 @@ import {
   clearCart,
 } from "@/redux/slice/cartSlice";
 import {
-  useGetAllProductsQuery,
+  useGetAllproductQuery,
   useCreateOrderMutation,
 } from "@/redux/api/baseApi";
 import { useForm, Controller } from "react-hook-form";
@@ -37,7 +37,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const cartItems = useSelector((state: RootState) => state.cart.items);
 
-  const { data: productsData } = useGetAllProductsQuery("");
+  const { data: productsData } = useGetAllproductQuery("");
   const products: Product[] | undefined = productsData?.data.result;
 
   const {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useGetAllProductsQuery } from "@/redux/api/baseApi";
+import { useGetAllproductQuery } from "@/redux/api/baseApi";
 import {
   decreaseQuantity,
   increaseQuantity,
@@ -14,10 +14,10 @@ const Cart = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart);
 
-  const { data, isLoading } = useGetAllProductsQuery("");
+  const { data, isLoading } = useGetAllproductQuery("");
 
   const products = data?.data.result;
-  console.log(cartItems);
+  console.log(products);
   if (!cartItems.items.length) {
     return <div>Cart is empty</div>;
   }
@@ -41,7 +41,7 @@ const Cart = () => {
   if (isLoading) return <div>Loading</div>;
 
   return (
-    <div>
+    <div className="mt-20">
       <h1>Cart</h1>
       <ul>
         {cartItems.items?.map((item) => {

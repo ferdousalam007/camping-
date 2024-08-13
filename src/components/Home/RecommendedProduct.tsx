@@ -1,12 +1,23 @@
-import SectionHeading from '@/components/SectionHeading';
-import ProductCard from '@/components/productCard/ProductCard';
-import { useGetAllProductsQuery } from '@/redux/api/baseApi';
-
+import SectionHeading from "@/components/SectionHeading";
+import ProductCard from "@/components/productCard/ProductCard";
+import { useGetAllproductQuery } from "@/redux/api/baseApi";
 
 const RecommendedProduct = () => {
   const { data: productsData, isLoading: isProductsLoading } =
-    useGetAllProductsQuery("");
-    const products = productsData?.data.result;
+    useGetAllproductQuery("");
+  const products = productsData?.data.result;
+
+  // Filter the products to only include recommended ones
+  const recommendedProducts = products
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ?.filter((product: any) => product?.recommended && !product?.isDeleted)
+    .slice(-4); 
+
+
+  if (isProductsLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="container py-24">
       <SectionHeading
@@ -17,22 +28,24 @@ const RecommendedProduct = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          products?.map((product: any) => (
+          recommendedProducts?.map((product: any) => (
             <ProductCard
               key={product?._id}
-              image={`${product?.imageUrl}`}
+              image={`${product?.imageUrl[0]}`}
               title={`${product?.name}`}
               description={`${product?.description}`}
               rating={parseFloat(product?.ratings)}
               stock={product?.stock}
               id={product?._id}
+              recommended
+              price={product?.price}
+              totalSold={product?.totalSold}
             />
           ))
         }
       </div>
     </div>
   );
-}
+};
 
-export default RecommendedProduct
-
+export default RecommendedProduct;

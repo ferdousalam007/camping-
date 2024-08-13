@@ -2,8 +2,6 @@ import {
   Card,
   CardContent,
   CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { ShoppingCartIcon, Star } from "lucide-react";
@@ -16,7 +14,11 @@ interface ProductCardProps {
   description: string;
   rating: number;
   id: string;
-  stock:number;
+  stock: number;
+  recommended?: boolean;
+  featured?: boolean;
+  price: number;
+  totalSold: number;  
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -25,23 +27,40 @@ const ProductCard: React.FC<ProductCardProps> = ({
   description,
   rating,
   id,
-  stock
+  stock,
+  recommended,
+  featured,
+  price,
+  totalSold,
 }) => {
   return (
     <div>
-      <Card className="">
+      <Card className="relative flex flex-col h-full">
         {/* <CardHeader className="flex justify-between items-center p-4">
          
         </CardHeader> */}
         <CardContent className="flex flex-col items-center px-3 py-4">
+          {recommended && (
+            <p className="absolute top-[15px] right-[12px] bg-[#ff8851] px-2 py-1 text-white text-xs tracking-wider rounded">
+              {recommended && "Recommended"}
+            </p>
+          )}
+          {featured && (
+            <p className="absolute top-[15px] left-[12px] bg-[#ff8851] px-2 py-1 text-white text-xs tracking-wider rounded">
+              {featured && "Featured"}
+            </p>
+          )}
+
           <img
             src={image}
             alt={title}
             className="h-[150px] w-full object-cover"
           />
-          <h3 className="mt-4 text-center text-xl font-medium">{title}</h3>
+          <h3 className="mt-4 text-center text-base font-medium text-[#22262A]">
+            {title}
+          </h3>
           {/* <h4 className="text-base font-normal">{description}</h4> */}
-          <h4 className="text-base font-normal text-center">
+          <h4 className="text-sm font-medium text-center mt-2">
             {description?.length > 60
               ? description.substring(0, 60) + "..."
               : description}
@@ -61,17 +80,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
               fullSymbol={<Star size={15} color="orange" fill="orange" />}
             />
           </div>
-          <div className="mt-4 text-2xl font-bold">$999</div>
+          <div className="mt-4 text-[18px] font-medium text-[#22262A]">
+            $ {price}
+          </div>
           <div className="flex items-center mt-2">
-            <span className="text-red-500 font-semibold">15 Sold</span>
+            <span className="text-red-500 font-semibold">{totalSold} Sold</span>
             <span className="ml-4 text-green-500 font-semibold">
               {stock > 1 ? `${stock} In Stock ` : "Out of stock"}
               {/* {stock === 0 && <span className="ml-4 text-red-500 font-semibold">Out of stock</span>} */}
             </span>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-center p-4">
-          <Button className="mt-4">
+        <CardFooter className="flex justify-center mt-auto p-4">
+          <Button className="">
             <ShoppingCartIcon className="w-5 h-5 mr-2 text-gray-100" />
             <Link to={`/products/${id}`}>View Details</Link>
           </Button>

@@ -30,7 +30,7 @@ const Navbar = () => {
   }, []);
   return (
     <div
-      className={`mx-auto bg-[#1d231f] w-full shrink-0 transition-all duration-500 ease-in-out border-b border-gray-100  ${
+      className={`mx-auto bg-[#1b352c] w-full shrink-0 transition-all duration-500 ease-in-out border-b border-gray-100  ${
         isFixed
           ? "fixed top-0 z-10 "
           : "top-[-1000px] fixed  z-10 transition-all duration-500 ease-in-out"
@@ -38,8 +38,8 @@ const Navbar = () => {
     >
       <div className={`container flex items-center justify-between  h-16  `}>
         <Link to="/" className="flex items-center">
-          <Tent />
-          <h3 className="font-extrabold bg-yellow-400 p-1 rounded-md">
+          <Tent  className="bg-white"/>
+          <h3 className="font-medium text-2xl text-white p-1 rounded-md">
             Camping Shop
           </h3>
         </Link>
