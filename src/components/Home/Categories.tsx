@@ -36,7 +36,7 @@ const Categories = () => {
 
   // Map categories to their respective product counts
   const categoriesWithProductCounts = categoriesData?.data.map((category) => {
-    const productCount = validProducts.filter(
+    const productCount = validProducts?.filter(
       (product) => product.category._id === category._id
     ).length;
     return {

@@ -91,3 +91,120 @@ z-index: 9999999 !important;
  .custom-according .accordion-trigger.active {
     background-color: #9c1c1c; /* Example active background color */
   }
+.custom-gallery .image-gallery-image {
+  max-height: 450px !important; /* Adjust the height */
+  object-fit: cover; /* Ensure the image covers the area while maintaining aspect ratio */
+}
+.image-gallery-left-nav .image-gallery-svg, .image-gallery-right-nav .image-gallery-svg {
+    height: 40px !important;
+    width: 40px !important;
+    background: #1b352c;
+    border-radius: 50%;
+    transition: .2s;
+}
+    .image-gallery-icon:hover {
+        color: #ffffff !important;
+    }
+.image-gallery-left-nav, .image-gallery-right-nav {
+    padding: 0px 0px !important;
+}
+.image-gallery-thumbnail {  
+    width: 80px !important;
+}
+ .image-gallery-right-nav {
+   right: 40px !important;
+   
+}
+.image-gallery-left-nav{
+left: 40px !important;
+}
+.product-slider {
+  position: relative;
+  
+  width: 350px;
+  margin: auto;
+  overflow: hidden;
+}
+
+.slider-image-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.slider-image-container img{
+width: 100%;  
+}
+.slider-image {
+  width: 100%;
+  display: block;
+}
+
+.slider-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 999;
+}
+
+.prev {
+  left: 0;
+}
+
+.next {
+  right: 0;
+}
+
+.thumbnail-navigation {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.thumbnail {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin: 0 5px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.thumbnail.active {
+  border-color: #ff8851;
+}
+
+.magnifier {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border: 2px solid #ff8851;
+  border-radius: 15%;
+  background-repeat: no-repeat;
+  background-size: 500% 500%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.hover-team{
+  position: absolute;
+  bottom: 52px;
+  right: -70px;
+  /* height: 0; */
+   transition: .300s;
+}
+.team-box:hover .hover-team{
+  height: auto;
+  /* bottom: 52px; */
+ right: 2px;
+}
+
+/* .hover-team{
+  position: absolute;
+  bottom: 52px;
+  right: 2px;
+} */

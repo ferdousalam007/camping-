@@ -18,6 +18,16 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Product } from "@type/type";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableCaption,
+  TableFooter,
+} from "@/components/ui/table";
 
 const userDetailsSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -61,7 +71,6 @@ const Checkout = () => {
       totalPrice,
     };
     if (paymentMethod === "cash") {
-      // Deduct stock and redirect to success page
       cartItems.forEach((item) => {
         const product = products?.find((p: Product) => p._id === item.id);
         if (product) {
@@ -79,12 +88,9 @@ const Checkout = () => {
         });
       } catch (error) {
         console.error("Error placing order:", error);
-        // Handle error appropriately (e.g., display an error message)
       }
     } else if (paymentMethod === "stripe") {
       // Redirect to Stripe payment page
-      // After successful payment, deduct stock and redirect to success page
-      // This part requires integration with Stripe API
     }
   };
 
@@ -174,7 +180,7 @@ const Checkout = () => {
               />
               Cash on Delivery
             </label>
-            <label>
+            <label className="hidden">
               <input
                 type="radio"
                 name="paymentMethod"
@@ -195,35 +201,97 @@ const Checkout = () => {
       {cartItems.length === 0 ? (
         <p>You have no products added to your cart.</p>
       ) : (
-        <ul>
-          {cartItems.map((item) => {
-            const product = products?.find((p: Product) => p._id === item.id);
+        <div className="container">
+          <Table>
+            <TableCaption>A list of items in your cart.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-bold text-[#1b352c]">
+                  Product
+                </TableHead>
+                <TableHead className="font-bold text-[#1b352c]">
+                  Price
+                </TableHead>
+                <TableHead className="font-bold text-[#1b352c]">
+                  Quantity
+                </TableHead>
+                <TableHead className="text-right font-bold text-[#1b352c]">
+                  Total
+                </TableHead>
+                <TableHead className="text-right font-bold text-[#1b352c]">
+                  Actions
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {cartItems.map((item) => {
+                const product = products?.find(
+                  (p: Product) => p._id === item.id
+                );
 
-            if (!product) return "No product found";
-            return (
-              <li key={item.id}>
-                <h2>{product.name}</h2>
-                <p>Price: ${product.price}</p>
-                <p>Quantity: {item.quantity}</p>
-                <button
-                  onClick={() => handleDecrease(item.id)}
-                  disabled={item.quantity <= 1}
+                if (!product) return "No product found";
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">
+                      {product.name}
+                    </TableCell>
+                    <TableCell>${product.price}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell className="text-right">
+                      ${(product.price * item.quantity).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <button
+                        onClick={() => handleDecrease(item.id)}
+                        disabled={item.quantity <= 1}
+                        className={`mr-2 py-1 px-2 rounded font-bold cursor-pointer ${
+                          item.quantity <= 1
+                            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                            : "bg-[#1b352c] text-white hover:bg-[#ff8851]"
+                        }`}
+                      >
+                        -
+                      </button>
+
+                      <button
+                        onClick={() => handleIncrease(item.id)}
+                        disabled={item.quantity >= (product?.stock || 0)}
+                        className={`mr-2 py-1 px-2 rounded font-bold cursor-pointer ${
+                          item.quantity >= (product?.stock || 0)
+                            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                            : "bg-[#1b352c] text-white hover:bg-[#ff8851]"
+                        }`}
+                      >
+                        +
+                      </button>
+
+                      <button
+                        className="py-1 px-2 rounded bg-[#1b352c] text-white hover:bg-[#ff8851] font-medium"
+                        onClick={() => handleRemove(item.id)}
+                      >
+                        Remove
+                      </button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell
+                  className="font-bold text-[#1b352c] text-xl"
+                  colSpan={3}
                 >
-                  -
-                </button>
-                <button
-                  onClick={() => handleIncrease(item.id)}
-                  disabled={item.quantity >= (product?.stock || 0)}
-                >
-                  +
-                </button>
-                <button onClick={() => handleRemove(item.id)}>Remove</button>
-              </li>
-            );
-          })}
-        </ul>
+                  Total:
+                </TableCell>
+                <TableCell className="text-right font-bold text-[#1b352c] text-xl">
+                  ${totalPrice.toFixed(2)}
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </div>
       )}
-      {cartItems.length > 0 && <h2>Total: ${totalPrice}</h2>}
     </div>
   );
 };

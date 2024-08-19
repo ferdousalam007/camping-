@@ -33,10 +33,13 @@ const Faq = () => {
               }`}
             >
               <AccordionTrigger className="hover:bg-gray-100 px-4 py-2">
-                Is it accessible?
+                What types of products do you offer?
               </AccordionTrigger>
               <AccordionContent className="bg-gray-100 px-4 py-2">
-                Yes. It adheres to the WAI-ARIA design pattern.
+                At Campers Shop, we provide a wide range of camping gear,
+                including tents, sleeping bags, cooking equipment, hiking gear,
+                and fun outdoor gadgets. Whether you're a beginner or a seasoned
+                camper, we have everything you need for your next adventure.
               </AccordionContent>
             </AccordionItem>
 
@@ -47,11 +50,12 @@ const Faq = () => {
               }`}
             >
               <AccordionTrigger className="hover:bg-gray-100 px-4 py-2">
-                Is it styled?
+                Do you offer international shipping?
               </AccordionTrigger>
               <AccordionContent className="bg-gray-100 px-4 py-2">
-                Yes. It comes with default styles that matches the other
-                components' aesthetic.
+                Yes, we ship our products worldwide! Shipping costs and delivery
+                times vary depending on your location. You can check the
+                shipping options available for your country at checkout.
               </AccordionContent>
             </AccordionItem>
 
@@ -62,11 +66,64 @@ const Faq = () => {
               }`}
             >
               <AccordionTrigger className="hover:bg-gray-100 px-4 py-2">
-                Is it animated?
+                What is your return policy?
               </AccordionTrigger>
               <AccordionContent className="bg-gray-100 px-4 py-2">
-                Yes. It's animated by default, but you can disable it if you
-                prefer.
+                We want you to be completely satisfied with your purchase. If
+                you're not happy with your item, you can return it within 30
+                days of receipt for a full refund or exchange. Please ensure
+                that the item is unused and in its original packaging.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem
+              value="item-3"
+              className={`border-b ${
+                defaultValue === "item-3" ? "bg-blue-100" : ""
+              }`}
+            >
+              <AccordionTrigger className="hover:bg-gray-100 px-4 py-2">
+                How can I track my order?
+              </AccordionTrigger>
+              <AccordionContent className="bg-gray-100 px-4 py-2">
+                Once your order is dispatched, you'll receive an email with a
+                tracking number. You can use this number on our website's
+                tracking page to follow your order's journey.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem
+              value="item-3"
+              className={`border-b ${
+                defaultValue === "item-3" ? "bg-blue-100" : ""
+              }`}
+            >
+              <AccordionTrigger className="hover:bg-gray-100 px-4 py-2">
+                Are your products environmentally friendly?
+              </AccordionTrigger>
+              <AccordionContent className="bg-gray-100 px-4 py-2">
+                We are committed to sustainability. Many of our products are
+                made from eco-friendly materials, and we continuously work with
+                our suppliers to reduce our environmental impact. Look for the
+                "Eco-Friendly" label on our products.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem
+              value="item-6"
+              className={`border-b rounded ${
+                defaultValue === "item-6" ? "bg-[#1b352c] " : ""
+              }`}
+            >
+              <AccordionTrigger
+                className={`hover:bg-[#1b352c] px-4 py-5 hover:text-gray-100 rounded ${
+                  defaultValue === "item-6" ? "bg-[#1b352c] text-white" : ""
+                }`}
+              >
+                Do you offer any discounts for bulk purchases?
+              </AccordionTrigger>
+              <AccordionContent className="bg-gray-100 px-4 py-2 text-base">
+                Yes, we offer discounts on bulk purchases. If you're planning a
+                group trip or need a large quantity of items, please contact our
+                customer service team for more details on bulk pricing and
+                discounts.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

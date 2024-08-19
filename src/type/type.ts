@@ -7,12 +7,13 @@ export type Product = {
         _id: string;
         name: string;
     };
-    imageUrl: string;
-    ratings?: number;
+    imageUrl: string[];
+    ratings?: number | 0;
     recommended?: boolean;
-    stock?: number;
+    stock?: number | 0;
     featured?: boolean;
-    
+    data?: Product[];
+    totalSold?: number | 0;
 }
 export type Result= {
     description: string;
@@ -81,11 +82,56 @@ type Products ={
 // }
 
 // Define the type for the API response
-export type TApiResponse ={
+export type TApiResponse = {
     result: Products[];
     total: number;
     page: number;
     limit: number;
     minPriceProduct: number;
     maxPriceProduct: number;
-}
+    data?: Product[];
+    isLoading?: boolean; // Add isLoading property
+    isError?: boolean; // Add isError property
+};
+// src/type/type.ts
+export type UseQueryHookResult<T> = {
+    data: T | undefined;
+    isLoading: boolean;
+    isError: boolean;
+    refetch: () => void;
+};
+
+export type ProductRes = {
+    _id: string;
+    name: string;
+    price: number;
+    stock: number;
+    description: string;
+    category: {
+        _id: string;
+        name: string;
+        imageUrl: string;
+        __v: number;
+    };
+    ratings: number; // Ensure this is typed as number
+    imageUrl: string[];
+    featured: boolean;
+    recommended: boolean;
+    isDeleted: boolean;
+    totalSold: number;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+};
+export type TApiResponseRes = {
+    success: boolean;
+    message: string;
+    data: {
+        result: ProductRes[];
+        total: number;
+        minPriceProduct: number;
+        maxPriceProduct: number;
+        page: number;
+        limit: number;
+    };
+};

@@ -1,11 +1,16 @@
+import React, { FC, ReactNode } from "react";
 
+interface CategoryModalProps {
+  onClose: () => void;
+  children: ReactNode;
+}
 
-const CategoryModal = ({ onClose, children }) => {
-    const handleBackgroundClick = (e) => {
-      if (e.target === e.currentTarget) {
-        onClose();
-      }
-    };
+const CategoryModal: FC<CategoryModalProps> = ({ onClose, children }) => {
+  const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
   return (
     <div
       onClick={handleBackgroundClick}

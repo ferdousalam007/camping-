@@ -378,8 +378,8 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
         </div>
       </form>
       <CreateCategoryDialog
-        open={isCategoriesOpen}
-        onClose={() => setIsCategoriesOpen(false)}
+        isOpenCategory={isCategoriesOpen}
+        onCloseCategory={() => setIsCategoriesOpen(false)}
       />
     </div>
   );

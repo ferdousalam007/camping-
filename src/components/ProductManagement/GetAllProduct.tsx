@@ -15,9 +15,9 @@ import {
 } from "@/redux/api/baseApi";
 import { Product, TApiResponse } from "@type/type";
 import { FilePenLine, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import UpdateProductDialog from "./UpdateProductDialog";
-import { Slider } from "@/components/ui/slider";
+import CreateCategoryDialog from "./CreateCategoryDialog";
 import {
   Pagination,
   PaginationContent,
@@ -26,19 +26,17 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import CreateCategoryDialog from "./CreateCategoryDialog";
 
 const GetAllProduct = () => {
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
-  // const [minPrice, setMinPrice] = useState<number | undefined>();
-  // const [maxPrice, setMaxPrice] = useState<number | undefined>();
-    const [sort, setSort] = useState<"asc" | "desc" | "">();
+  const [minPrice, setMinPrice] = useState<number | undefined>();
+  const [maxPrice, setMaxPrice] = useState<number | undefined>();
+  const [sort, setSort] = useState<"asc" | "desc" | "">();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-   const [priceRange, setPriceRange] = useState([0, 1000]);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -50,15 +48,14 @@ const GetAllProduct = () => {
   } = useGetProductsQuery<TApiResponse>({
     search,
     category,
-    minPrice: priceRange[0], 
-    maxPrice: priceRange[1],
+    minPrice,
+    maxPrice,
     sort,
     page,
     limit,
-  
   });
 
-  const apiLimit = products?.data?.limit; //this is api response limit
+  const apiLimit = products?.data?.limit;
   const apiTotal = products?.data?.total;
   const newResult: TApiResponse = products?.data || [];
   const newProducts: Product[] = newResult?.result || [];
@@ -67,6 +64,8 @@ const GetAllProduct = () => {
   const handleClear = () => {
     setSearch("");
     setCategory("");
+    setMinPrice(undefined);
+    setMaxPrice(undefined);
     setSort("");
     setPage(1);
     setLimit(10);
@@ -78,11 +77,8 @@ const GetAllProduct = () => {
     refetch();
   };
 
- 
   const [deleteProduct, { isLoading: isDeleting, isError: isDeleted }] =
     useDeleteProductMutation();
-
-
 
   const handleDeleteProduct = (productId: string) => {
     deleteProduct(productId).then(() => refetch());
@@ -93,11 +89,6 @@ const GetAllProduct = () => {
     setIsDialogOpen(true);
   };
 
-  const handlePriceRangeChange = (newPriceRange: [number, number]) => {
-    setPriceRange(newPriceRange);
-    setPage(1); // Reset page to 1 when price range changes
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -105,8 +96,6 @@ const GetAllProduct = () => {
       </div>
     );
   }
-
- 
 
   if (products?.result?.length === 0) {
     return (
@@ -144,19 +133,7 @@ const GetAllProduct = () => {
             </option>
           ))}
         </select>
-        <div className="mt-4">
-          <label>
-            Price Range: ${priceRange[0]} - ${priceRange[1]}
-          </label>
-          <Slider
-            value={priceRange}
-            onValueChange={handlePriceRangeChange}
-            min={0}
-            max={1000}
-            step={1}
-            className="mt-2"
-          />
-        </div>
+
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as "asc" | "desc")}
@@ -165,8 +142,28 @@ const GetAllProduct = () => {
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
-        <div>
-          <label htmlFor="productsPerPage">Products per Page:</label>
+
+        <div className="flex items-center">
+          <input
+            type="number"
+            placeholder="Min Price"
+            value={minPrice ?? ""}
+            onChange={(e) => setMinPrice(Number(e.target.value))}
+            className="border p-2 mr-2"
+          />
+          <input
+            type="number"
+            placeholder="Max Price"
+            value={maxPrice ?? ""}
+            onChange={(e) => setMaxPrice(Number(e.target.value))}
+            className="border p-2"
+          />
+        </div>
+
+        <div className="flex items-center mt-2">
+          <label htmlFor="productsPerPage" className="mr-2">
+            Products per Page:
+          </label>
           <input
             id="productsPerPage"
             type="number"
@@ -175,19 +172,18 @@ const GetAllProduct = () => {
               const newLimit = parseInt(e.target.value, 10);
               if (!isNaN(newLimit)) {
                 setLimit(newLimit);
-                // Optionally, trigger a re-fetch of products here if needed
+                refetch();
               }
             }}
+            className="border p-2"
           />
+          <button
+            onClick={() => handleClear()}
+            className="ml-2 p-2 bg-blue-500 text-white"
+          >
+            Reset
+          </button>
         </div>
-        <button
-          onClick={() => {
-            handleClear();
-          }}
-          className="ml-2 p-2 bg-blue-500 text-white"
-        >
-          Reset
-        </button>
       </div>
 
       <Table>
@@ -223,7 +219,6 @@ const GetAllProduct = () => {
                   onClick={() => handleEditClick(product)}
                   className="cursor-pointer text-right inline-block ml-3 text-green-700"
                 />
-               
               </TableCell>
             </TableRow>
           ))}
@@ -271,7 +266,7 @@ const GetAllProduct = () => {
         onClose={() => setIsDialogOpen(false)}
         selectedProduct={selectedProduct}
       />
-    
+      {/* <CreateCategoryDialog /> */}
     </div>
   );
 };
