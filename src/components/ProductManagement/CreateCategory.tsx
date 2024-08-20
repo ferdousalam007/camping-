@@ -27,7 +27,7 @@ const CreateCategory = () => {
 
   const [createCategory, { isLoading, isError, error, isSuccess }] =
     useCreateCategoryMutation();
-console.log({isError, error});
+
   const onSubmit = async (data: CategoryFormValues) => {
     const formData = new FormData();
     formData.append("name", data.name);
@@ -41,9 +41,9 @@ console.log({isError, error});
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-4">Create Category</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-semibold mb-6">Create Category</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <label
             htmlFor="name"
@@ -55,10 +55,12 @@ console.log({isError, error});
             id="name"
             type="text"
             {...register("name")}
-            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className={`mt-1 block w-full py-2 px-3 border ${
+              errors.name ? "border-red-500" : "border-gray-300"
+            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
           />
           {errors.name && (
-            <p className="mt-2 text-red-600">{errors.name.message}</p>
+            <p className="mt-2 text-sm text-red-600">{errors.name.message}</p>
           )}
         </div>
         <div>
@@ -72,26 +74,30 @@ console.log({isError, error});
             id="image"
             type="file"
             {...register("image")}
-            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer"
+            className={`mt-1 block w-full py-2 px-3 border ${
+              errors.image ? "border-red-500" : "border-gray-300"
+            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer`}
           />
           {errors.image && (
-            <p className="mt-2 text-red-600">{errors.image.message}</p>
+            <p className="mt-2 text-sm text-red-600">{errors.image.message}</p>
           )}
         </div>
         <Button
           type="submit"
           disabled={isLoading}
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          Submit
+          {isLoading ? "Submitting..." : "Submit"}
         </Button>
         {isError && (
-          <p className="mt-2 text-red-600">
-            Error: {error.data?.message || "Something went wrong"}
+          <p className="mt-2 text-sm text-red-600">
+            Error: {error?.data?.message || "Something went wrong"}
           </p>
         )}
         {isSuccess && (
-          <p className="mt-2 text-green-600">Category created successfully!</p>
+          <p className="mt-2 text-sm text-green-600">
+            Category created successfully!
+          </p>
         )}
       </form>
     </div>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,6 +8,9 @@ import {
 } from "@/redux/api/baseApi";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -72,33 +76,45 @@ const CreateProduct = () => {
     maxSize: 5 * 1024 * 1024, // 5MB
   });
 
-  const onSubmit = async (data: ProductFormValues) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("price", data.price.toString());
-    formData.append("stock", data.stock.toString());
-    formData.append("description", data.description);
-    formData.append("category", data.category);
-    if (data.ratings !== undefined) {
-      formData.append("ratings", data.ratings.toString());
-    }
-    if (data.featured !== undefined) {
-      formData.append("featured", data.featured.toString());
-    }
-    if (data.recommended !== undefined) {
-      formData.append("recommended", data.recommended.toString());
-    }
-    data.images.forEach((image) => {
-      formData.append("images", image);
-    });
+ const onSubmit = async (data: ProductFormValues) => {
+   const formData = new FormData();
+   formData.append("name", data.name);
+   formData.append("price", data.price.toString());
+   formData.append("stock", data.stock.toString());
+   formData.append("description", data.description);
+   formData.append("category", data.category);
+   if (data.ratings !== undefined) {
+     formData.append("ratings", data.ratings.toString());
+   }
+   if (data.featured !== undefined) {
+     formData.append("featured", data.featured.toString());
+   }
+   if (data.recommended !== undefined) {
+     formData.append("recommended", data.recommended.toString());
+   }
+   data.images.forEach((image) => {
+     formData.append("images", image);
+   });
 
-    await createProduct(formData);
-
-    if (isSuccess) {
-      reset();
-      setImagePreviews([]);
-    }
-  };
+   try {
+     await createProduct(formData).unwrap();
+     // Reset form and clear image previews upon successful submission
+     reset({
+       name: "",
+       price: 0,
+       stock: 0,
+       description: "",
+       category: "",
+       ratings: undefined,
+       featured: false,
+       recommended: false,
+       images: [],
+     });
+     setImagePreviews([]);
+   } catch (err) {
+     console.error("Failed to create product:", err);
+   }
+ };
 
   return (
     <div>
@@ -112,11 +128,11 @@ const CreateProduct = () => {
             >
               Name:
             </label>
-            <input
+            <Input
               id="name"
               type="text"
               {...register("name")}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1"
             />
             {errors.name && (
               <p className="mt-2 text-red-600">{errors.name.message}</p>
@@ -129,10 +145,11 @@ const CreateProduct = () => {
             >
               Description:
             </label>
-            <textarea
+            <Input
+              as="textarea"
               id="description"
               {...register("description")}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1"
             />
             {errors.description && (
               <p className="mt-2 text-red-600">{errors.description.message}</p>
@@ -147,12 +164,12 @@ const CreateProduct = () => {
             >
               Price:
             </label>
-            <input
+            <Input
               id="price"
               type="number"
               step="0.01"
               {...register("price", { valueAsNumber: true })}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1"
             />
             {errors.price && (
               <p className="mt-2 text-red-600">{errors.price.message}</p>
@@ -165,11 +182,11 @@ const CreateProduct = () => {
             >
               Stock:
             </label>
-            <input
+            <Input
               id="stock"
               type="number"
               {...register("stock", { valueAsNumber: true })}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1"
             />
             {errors.stock && (
               <p className="mt-2 text-red-600">{errors.stock.message}</p>
@@ -189,6 +206,9 @@ const CreateProduct = () => {
               {...register("category")}
               className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
+              <option value="" disabled selected>
+                Select a category
+              </option>
               {categories?.data.map(
                 (category: { _id: string; name: string }) => (
                   <option key={category._id} value={category._id}>
@@ -201,6 +221,7 @@ const CreateProduct = () => {
               <p className="mt-2 text-red-600">{errors.category.message}</p>
             )}
           </div>
+
           <div>
             <label
               htmlFor="ratings"
@@ -208,12 +229,12 @@ const CreateProduct = () => {
             >
               Ratings:
             </label>
-            <input
+            <Input
               id="ratings"
               type="number"
               step="0.1"
               {...register("ratings", { valueAsNumber: true })}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1"
             />
             {errors.ratings && (
               <p className="mt-2 text-red-600">{errors.ratings.message}</p>
@@ -265,36 +286,49 @@ const CreateProduct = () => {
                 id="featured"
                 type="checkbox"
                 {...register("featured")}
-                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
+                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
               />
-              <span className="ml-2 text-sm text-gray-600">Featured</span>
+              <span className="ml-2 text-sm font-medium text-gray-700">
+                Featured
+              </span>
             </label>
-            <label htmlFor="recommended" className="inline-flex items-center">
+            <br />
+            <label
+              htmlFor="recommended"
+              className="inline-flex items-center mt-2"
+            >
               <input
                 id="recommended"
                 type="checkbox"
                 {...register("recommended")}
-                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 ml-2"
+                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
               />
-              <span className="ml-2 text-sm text-gray-600">Recommended</span>
+              <span className="ml-2 text-sm font-medium text-gray-700">
+                Recommended
+              </span>
             </label>
           </div>
         </div>
-
-        <button
+        <Button
           type="submit"
-          disabled={isLoading}
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="mt-4 w-full"
+          disabled={isLoading || isCategoriesLoading}
         >
-          Submit
-        </button>
-        {isError && (
-          <p className="mt-2 text-red-600">
-            Error: {(error as Error).message || "Something went wrong"}
+          {isLoading || isCategoriesLoading
+            ? "Submitting..."
+            : "Create Product"}
+        </Button>
+        {
+        isSuccess && (
+          <p className="mt-4 text-green-600">
+            Product created successfully
           </p>
-        )}
-        {isSuccess && (
-          <p className="mt-2 text-green-600">Product created successfully!</p>
+        )
+        }
+        {isError && (
+          <p className="mt-4 text-red-600">
+            {(error as any)?.data?.message || "An error occurred"}
+          </p>
         )}
       </form>
     </div>

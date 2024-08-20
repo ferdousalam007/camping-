@@ -29,7 +29,7 @@ const CreateCategoryDialog: React.FC<UpdateProductCategoryProps> = ({
             <DialogClose />
           </DialogHeader>
           {/* <UpdateForm selectedProduct={selectedProduct} onClose={onClose} /> */}
-          <UpdateCreateCategoryForm onClose={onCloseCategory} />
+          <UpdateCreateCategoryForm onCloseCategory={onCloseCategory} />
         </DialogContent>
       </Dialog>
     </div>

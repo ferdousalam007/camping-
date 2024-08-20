@@ -14,6 +14,7 @@ export type Product = {
     featured?: boolean;
     data?: Product[];
     totalSold?: number | 0;
+    isDeleted?: boolean;
 }
 export type Result= {
     description: string;

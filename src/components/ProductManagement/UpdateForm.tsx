@@ -50,6 +50,7 @@ const productSchema = z.object({
 type UpdateFormProps = {
   selectedProduct: Product;
   onClose: () => void;
+  setSelectedProduct: (product: Product) => void;
 };
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -57,6 +58,8 @@ type ProductFormValues = z.infer<typeof productSchema>;
 const UpdateForm: React.FC<UpdateFormProps> = ({
   selectedProduct,
   onClose,
+  setSelectedProduct,
+  
 }) => {
   const [previews, setPreviews] = useState<string[]>(
     Array.isArray(selectedProduct.imageUrl)
@@ -65,10 +68,11 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
       ? selectedProduct.imageUrl.split(",")
       : []
   );
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
+    useState(false);
 
   const handleCategoryClick = () => {
-    setIsCategoriesOpen(true);
+    setIsCreateCategoryDialogOpen(true);
   };
 
   const {
@@ -110,7 +114,6 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     useUpdateSingleProductMutation();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
-
   const watchImages = watch("images");
 
   const onDrop = useCallback(
@@ -261,26 +264,28 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
               className="block text-sm font-medium text-gray-700"
             >
               Category:
+            </label>
+            <div className="flex">
+              <select
+                id="category"
+                {...register("category")}
+                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="">Select a category</option>
+                {categories?.data?.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
               <Button
+                type="button"
                 onClick={handleCategoryClick}
-                className="cursor-pointer text-right inline-block ml-3 text-white"
+                className="ml-2 text-sm bg-blue-500 text-white py-2 px-4 rounded"
               >
                 Create Category
               </Button>
-            </label>
-            <select
-              id="category"
-              {...register("category")}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              {categories?.data.map(
-                (category: { _id: string; name: string }) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                )
-              )}
-            </select>
+            </div>
             {errors.category && (
               <p className="mt-2 text-red-600">{errors.category.message}</p>
             )}
@@ -290,12 +295,11 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
               htmlFor="ratings"
               className="block text-sm font-medium text-gray-700"
             >
-              Ratings:
+              Ratings (Optional):
             </label>
             <input
               id="ratings"
               type="number"
-              step="0.1"
               {...register("ratings", { valueAsNumber: true })}
               className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
@@ -304,83 +308,93 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
             )}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label
-              htmlFor="featured"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Featured:
-            </label>
-            <input
-              id="featured"
-              type="checkbox"
-              {...register("featured")}
-              className="mt-1 block w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            />
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Upload Images (max {MAX_IMAGES}):
+          </label>
+          <div
+            {...getRootProps()}
+            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-md"
+          >
+            <input {...getInputProps()} />
+            <p className="text-center">
+              Drag 'n' drop some files here, or click to select files
+            </p>
           </div>
-          <div>
-            <label
-              htmlFor="recommended"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Recommended:
-            </label>
-            <input
-              id="recommended"
-              type="checkbox"
-              {...register("recommended")}
-              className="mt-1 block w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            />
-          </div>
-        </div>
-
-        <div
-          {...getRootProps()}
-          className="border-2 border-dashed border-gray-300 p-4 rounded-md cursor-pointer"
-        >
-          <input {...getInputProps()} />
-          <p className="text-center text-gray-700">
-            Drag & drop some files here, or click to select files
-          </p>
-        </div>
-
-        <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
-          {previews.map((preview, index) => (
-            <div key={index} className="relative">
-              <img
-                src={preview}
-                alt={`Preview ${index + 1}`}
-                className="object-cover h-20 w-full rounded-md"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveImage(index)}
-                className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs"
-              >
-                X
-              </button>
+          {previews.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {previews.map((preview, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    className="h-24 w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-1 right-1 text-white bg-red-500 rounded-full p-1"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+          {errors.images && (
+            <p className="mt-2 text-red-600">{errors.images.message}</p>
+          )}
         </div>
-
-        {isError && (
-          <p className="mt-2 text-red-600">{(error as Error).message}</p>
-        )}
-        <div className="flex justify-end">
+        <div className="flex items-center">
+          <input
+            id="featured"
+            type="checkbox"
+            {...register("featured")}
+            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          />
+          <label
+            htmlFor="featured"
+            className="ml-2 block text-sm text-gray-900"
+          >
+            Featured
+          </label>
+        </div>
+        <div className="flex items-center">
+          <input
+            id="recommended"
+            type="checkbox"
+            {...register("recommended")}
+            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          />
+          <label
+            htmlFor="recommended"
+            className="ml-2 block text-sm text-gray-900"
+          >
+            Recommended
+          </label>
+        </div>
+        <div className="mt-6">
           <button
             type="submit"
             disabled={isLoading}
-            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+              isLoading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
           >
             {isLoading ? "Updating..." : "Update Product"}
           </button>
         </div>
       </form>
-      <CreateCategoryDialog
-        isOpenCategory={isCategoriesOpen}
-        onCloseCategory={() => setIsCategoriesOpen(false)}
-      />
+      {isSuccess && (
+        <p className="mt-2 text-green-600">Product updated successfully.</p>
+      )}
+      {/* Create Category Dialog */}
+      {isCreateCategoryDialogOpen && (
+        <CreateCategoryDialog
+          isOpenCategory={isCreateCategoryDialogOpen}
+          onCloseCategory={() => setIsCreateCategoryDialogOpen(false)}
+        />
+      )}
     </div>
   );
 };

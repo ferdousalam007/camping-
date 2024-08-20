@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Table,
   TableBody,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import {
   useDeleteProductMutation,
-  useGetProductsQuery,
+  useGetAllProductsQuery,
   useGetCategoriesQuery,
 } from "@/redux/api/baseApi";
 import { Product, TApiResponse } from "@type/type";
@@ -26,15 +27,26 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Input } from "@/components/ui/input"; // Importing Input component
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const GetAllProduct = () => {
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+  // Update the category and sort values in the state to be undefined initially
+  const [category, setCategory] = useState<string | undefined>(undefined);
+  const [sort, setSort] = useState<"asc" | "desc" | undefined>(undefined);
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
-  const [sort, setSort] = useState<"asc" | "desc" | "">();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -45,7 +57,7 @@ const GetAllProduct = () => {
     isLoading,
     isError,
     refetch,
-  } = useGetProductsQuery<TApiResponse>({
+  } = useGetAllProductsQuery<TApiResponse>({
     search,
     category,
     minPrice,
@@ -55,9 +67,9 @@ const GetAllProduct = () => {
     limit,
   });
 
-  const apiLimit = products?.data?.limit;
-  const apiTotal = products?.data?.total;
-  const newResult: TApiResponse = products?.data || [];
+  const apiLimit = (products as any)?.data?.limit;
+  const apiTotal = (products as any)?.data?.total;
+  const newResult: TApiResponse = (products as any)?.data || [];
   const newProducts: Product[] = newResult?.result || [];
   const totalPages = Math.ceil(apiTotal / apiLimit);
 
@@ -113,76 +125,144 @@ const GetAllProduct = () => {
     );
   }
 
+  const filteredProducts = newProducts.filter((product) => !product.isDeleted);
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-4">Get All Products</h1>
 
       <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border p-2 mr-2"
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">All Categories</option>
-          {categories?.data.map((category: { _id: string; name: string }) => (
-            <option key={category._id} value={category._id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-wrap items-end">
+          <div className="flex-1 m-2">
+            <label htmlFor="search" className="block mb-2">
+              Search
+            </label>
+            <Input
+              id="search"
+              type="text"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex-1 m-2">
+            <label htmlFor="category" className="block mb-2">
+              Category
+            </label>
 
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as "asc" | "desc")}
-        >
-          <option value="">Sort by Price</option>
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
+            <Select
+              value={category}
+              onValueChange={(value) => setCategory(value || undefined)}
+            >
+              <SelectTrigger id="category" className="w-full">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <Select
+                    value={category ?? ""}
+                    onValueChange={(value) => setCategory(value ?? "")}
+                  >
+                    {/* ... */}
+                  </Select>
+                  {categories?.data.map(
+                    (category: { _id: string; name: string }) => (
+                      <SelectItem key={category._id} value={category._id}>
+                        {category.name}
+                      </SelectItem>
+                    )
+                  )}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1 m-2">
+            <label htmlFor="minPrice" className="block mb-2">
+              Min Price
+            </label>
+            <Input
+              id="minPrice"
+              type="number"
+              placeholder="Min Price"
+              value={minPrice ?? ""}
+              onChange={(e) => setMinPrice(Number(e.target.value))}
+            />
+          </div>
+          <div className="flex-1 m-2">
+            <label htmlFor="maxPrice" className="block mb-2">
+              Max Price
+            </label>
+            <Input
+              id="maxPrice"
+              type="number"
+              placeholder="Max Price"
+              value={maxPrice ?? ""}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+            />
+          </div>
+          <div className="flex-1 m-2">
+            <label htmlFor="sort" className="block mb-2">
+              Sort by Price
+            </label>
 
-        <div className="flex items-center">
-          <input
-            type="number"
-            placeholder="Min Price"
-            value={minPrice ?? ""}
-            onChange={(e) => setMinPrice(Number(e.target.value))}
-            className="border p-2 mr-2"
-          />
-          <input
-            type="number"
-            placeholder="Max Price"
-            value={maxPrice ?? ""}
-            onChange={(e) => setMaxPrice(Number(e.target.value))}
-            className="border p-2"
-          />
-        </div>
-
-        <div className="flex items-center mt-2">
-          <label htmlFor="productsPerPage" className="mr-2">
-            Products per Page:
-          </label>
-          <input
-            id="productsPerPage"
-            type="number"
-            defaultValue={limit}
-            onChange={(e) => {
-              const newLimit = parseInt(e.target.value, 10);
-              if (!isNaN(newLimit)) {
-                setLimit(newLimit);
-                refetch();
+            <Select
+              value={sort}
+              onValueChange={(value) =>
+                setSort(value as "asc" | "desc" | undefined)
               }
-            }}
-            className="border p-2"
-          />
-          <button
-            onClick={() => handleClear()}
-            className="ml-2 p-2 bg-blue-500 text-white"
-          >
-            Reset
-          </button>
+            >
+              <SelectTrigger id="sort" className="w-full">
+                <SelectValue placeholder="Sort by Price" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {/* <Select
+                    value={sort ?? ""}
+                    onValueChange={(value) =>
+                      setSort(value as "asc" | "desc" | undefined)
+                    }
+                  >
+                    Sort by Price
+                  </Select> */}
+                  <SelectItem value="asc">Ascending</SelectItem>
+                  <SelectItem value="desc">Descending</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1 m-2">
+            <label htmlFor="productsPerPage" className="block mb-2">
+              Products per Page
+            </label>
+            <Select
+              value={limit.toString()}
+              onValueChange={(value) => {
+                setLimit(parseInt(value, 10));
+                refetch();
+              }}
+            >
+              <SelectTrigger id="productsPerPage" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Items per Page</SelectLabel>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="15">15</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1 m-2">
+            <button
+              onClick={() => handleClear()}
+              className="w-full p-2 bg-[#1b352c] text-white hover:bg-[#1b352c]"
+            >
+              Reset
+            </button>
+          </div>
         </div>
       </div>
 
@@ -198,18 +278,18 @@ const GetAllProduct = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {newProducts.map((product) => (
+          {filteredProducts?.map((product) => (
             <TableRow key={product._id}>
               <TableCell className="font-medium">
                 <img
-                  src={product.imageUrl[0]}
-                  alt={product.name}
+                  src={product?.imageUrl[0]}
+                  alt={product?.name}
                   className="w-full h-[80px] object-cover"
                 />
               </TableCell>
-              <TableCell>{product.name}</TableCell>
+              <TableCell>{product?.name}</TableCell>
               <TableCell>{product?.category?.name}</TableCell>
-              <TableCell className="text-right">${product.price}</TableCell>
+              <TableCell className="text-right">${product?.price}</TableCell>
               <TableCell className="text-right">
                 <Trash2
                   onClick={() => handleDeleteProduct(product._id)}

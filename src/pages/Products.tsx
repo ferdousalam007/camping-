@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import SectionHeading from "@/components/SectionHeading";
 import {
   useGetCategoriesQuery,
@@ -91,7 +92,7 @@ const Products = () => {
     setPage(pageNumber);
     refetch();
   };
-
+const filteredProducts = products?.filter((product : Product) => !product.isDeleted);
   return (
     <div className="container">
       <div className="py-12">
@@ -101,9 +102,13 @@ const Products = () => {
         />
       </div>
       <div>
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap items-end">
           <div className="flex-1 m-2">
+            <label htmlFor="search" className="block mb-2">
+              Search
+            </label>
             <Input
+              id="search"
               type="text"
               placeholder="Search"
               value={search}
@@ -111,8 +116,12 @@ const Products = () => {
             />
           </div>
           <div className="flex-1 m-2">
+            {isCategoriesLoading && <p>Loading...</p>}
+            <label htmlFor="category" className="block mb-2">
+              Category
+            </label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="category" className="w-full">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -131,7 +140,11 @@ const Products = () => {
             </Select>
           </div>
           <div className="flex-1 m-2">
+            <label htmlFor="minPrice" className="block mb-2">
+              Min Price
+            </label>
             <Input
+              id="minPrice"
               type="number"
               placeholder="Min Price"
               value={minPrice ?? ""}
@@ -139,7 +152,11 @@ const Products = () => {
             />
           </div>
           <div className="flex-1 m-2">
+            <label htmlFor="maxPrice" className="block mb-2">
+              Max Price
+            </label>
             <Input
+              id="maxPrice"
               type="number"
               placeholder="Max Price"
               value={maxPrice ?? ""}
@@ -147,8 +164,16 @@ const Products = () => {
             />
           </div>
           <div className="flex-1 m-2">
-            <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="w-full">
+            <label htmlFor="sort" className="block mb-2">
+              Sort by Price
+            </label>
+            <Select
+              value={sort}
+              onValueChange={(value) =>
+                setSort(value as "asc" | "desc" | "none")
+              }
+            >
+              <SelectTrigger id="sort" className="w-full">
                 <SelectValue placeholder="Sort by Price" />
               </SelectTrigger>
               <SelectContent>
@@ -162,10 +187,9 @@ const Products = () => {
             </Select>
           </div>
           <div className="flex-1 m-2">
-            <Button onClick={handleClear}>Clear</Button>
-          </div>
-          <div className="flex-1 m-2">
-            <label htmlFor="productsPerPage">Products per Page:</label>
+            <label htmlFor="productsPerPage" className="block mb-2">
+              Products per Page
+            </label>
             <Select
               value={limit.toString()}
               onValueChange={(value) => {
@@ -173,7 +197,7 @@ const Products = () => {
                 refetch();
               }}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="productsPerPage" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -187,14 +211,19 @@ const Products = () => {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex-1 m-2">
+            <Button className="w-full bg-[#1b352c] hover:bg-[#1b352c]" onClick={handleClear}>
+              Clear
+            </Button>
+          </div>
         </div>
 
         {isLoading && <p>Loading...</p>}
         {isError && <p>Something went wrong. Please try again later.</p>}
 
         <div className="my-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ">
-            {products?.map((product: Product) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {filteredProducts?.map((product: Product) => (
               <ProductCard
                 key={product._id}
                 image={product.imageUrl[0]}
@@ -247,7 +276,7 @@ const Products = () => {
         </PaginationContent>
       </Pagination>
     </div>
-  );
-};
+  );};
+
 
 export default Products;

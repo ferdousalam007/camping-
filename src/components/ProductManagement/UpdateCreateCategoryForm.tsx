@@ -16,10 +16,12 @@ const categorySchema = z.object({
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 type UpdateCreateCategoryFormProps = {
-  onClose: () => void;
+  onCloseCategory: () => void;
 };  
 
-const UpdateCreateCategoryForm: React.FC<UpdateCreateCategoryFormProps> = ({onClose}) => {
+const UpdateCreateCategoryForm: React.FC<UpdateCreateCategoryFormProps> = ({
+  onCloseCategory,
+}) => {
   const {
     register,
     handleSubmit,
@@ -41,7 +43,7 @@ const UpdateCreateCategoryForm: React.FC<UpdateCreateCategoryFormProps> = ({onCl
 
     if (isSuccess) {
       reset();
-      onClose();
+      // onClose();
     }
   };
 
@@ -92,7 +94,7 @@ const UpdateCreateCategoryForm: React.FC<UpdateCreateCategoryFormProps> = ({onCl
         </Button>
         <Button
           type="submit"
-          onClick={onClose}
+          onClick={onCloseCategory}
           disabled={isLoading}
           className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >

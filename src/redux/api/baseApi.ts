@@ -8,7 +8,7 @@ export const baseApi = createApi({
         baseUrl: 'http://localhost:5000/api',
         credentials: 'include'
     }),
-    tagTypes: ['Product', 'Category'],
+    tagTypes: ['Product', 'Category', 'Order'],
     endpoints: (builder) => ({
         createProduct: builder.mutation({
             query: (product) => ({
@@ -16,7 +16,7 @@ export const baseApi = createApi({
                 method: 'POST',
                 body: product,
             }),
-            invalidatesTags: ['Product'],
+            invalidatesTags: ['Product', 'Category'],
         }),
         createOrder: builder.mutation({
             query: (order) => ({
@@ -24,16 +24,15 @@ export const baseApi = createApi({
                 method: 'POST',
                 body: order,
             }),
-            invalidatesTags: (result, error, { products }) =>
-                Array.isArray(products) ? products.map(({ productId }) => ({ type: 'Product', id: productId })) : [],
+            invalidatesTags: ['Product', 'Category', 'Order'],
         }),
         getAllproduct: builder.query({
-           query:()=>({
-               url: '/products',
-               method: 'GET',
-               credentials: 'include'
-           }),
-           providesTags: ['Product'],
+            query: () => ({
+                url: '/products',
+                method: 'GET',
+                credentials: 'include'
+            }),
+            providesTags: ['Product'],
         }),
         getAllProducts: builder.query({
             query: ({ page = 1, limit = 10, search, category, minPrice, maxPrice, sort }) => {
@@ -49,7 +48,7 @@ export const baseApi = createApi({
                 result && Array.isArray(result.products) && result.products.length > 0
                     ? [{ type: 'Product', id: result.products[0].id }, 'Product']
                     : ['Product'],
-        }), 
+        }),
         getProducts: builder.query<ProductsResponse, ProductQueryParams>({
             query: ({ search, category, minPrice, maxPrice, sort, page, limit }) => {
                 const params = new URLSearchParams();
@@ -62,10 +61,10 @@ export const baseApi = createApi({
                 if (limit) params.append('limit', limit.toString());
                 return `products?${params.toString()}`;
             },
-            providesTags: (result: ProductsResponse | undefined): readonly TagDescription<"Product" | "Category">[] =>
-                Array.isArray(result)
-                    ? result.map(({ id }): TagDescription<"Product" | "Category"> => ({ type: 'Product', id }))
-                    : [],
+            providesTags: (result: ProductsResponse | undefined) =>
+                result && Array.isArray(result.products) && result.products.length > 0
+                    ? [{ type: 'Product', id: result.products[0].id }, 'Product']
+                    : ['Product'],
         }),
         updateSingleProduct: builder.mutation({
             query: ({ id, formData }) => ({
@@ -73,7 +72,7 @@ export const baseApi = createApi({
                 method: 'PUT',
                 body: formData,
             }),
-            invalidatesTags: ['Product','Category'],
+            invalidatesTags: ['Product', 'Category'],
             // invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],
             // async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
             //     try {
@@ -85,7 +84,7 @@ export const baseApi = createApi({
             //     }
             // },
         }),
-        
+
         deleteProduct: builder.mutation<void, string>({
             query: (productId) => ({
                 url: `/products/${productId}`,
@@ -129,5 +128,5 @@ export const {
     useUpdateSingleProductMutation,
     useCreateOrderMutation,
     useGetAllproductQuery,
-    
+
 } = baseApi;
