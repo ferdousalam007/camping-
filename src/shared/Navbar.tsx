@@ -68,11 +68,6 @@ const Navbar = () => {
                     Cart
                   </NavigationMenuLink>
                 </Link>
-                <Link to="/checkout">
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Chekout
-                  </NavigationMenuLink>
-                </Link>
                 <Link to="/productmanagement">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Product Management
@@ -100,7 +95,7 @@ const Navbar = () => {
               </NavigationMenuItem>
             </div>
           </NavigationMenuList>
-          <MobileNavbar />
+          <MobileNavbar cart={cart} wishList={wishList} />
         </NavigationMenu>
       </div>
     </div>

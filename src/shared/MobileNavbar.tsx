@@ -3,16 +3,36 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { AlignJustify, Tent } from "lucide-react";
+import { NavigationMenuLink } from "@/components/ui/navigation-menu";
+import { AlignJustify, ShoppingCart, Tent } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import WishListDropdown from "@/components/WishList/WishListDropdown";
 
-const MobileNavbar = () => {
+interface CartItem {
+  id: number;
+  name: string;
+  quantity: number;
+}
+
+interface CartState {
+  items: CartItem[];
+}
+
+interface WishListItem {
+  id: number;
+  name: string;
+}
+interface MobileNavbarProps {
+  cart: CartState;
+  wishList: WishListItem[];
+}
+
+const MobileNavbar = ({ cart, wishList }: MobileNavbarProps) => {
   const location = useLocation();
   return (
     <Sheet>
@@ -64,15 +84,6 @@ const MobileNavbar = () => {
             Cart
           </Link>
           <Link
-            to="/checkout"
-            className={` ${
-              location.pathname === "/checkout" ? "bg-gray-800" : ""
-            }
-            block px-4 py-2 rounded-md text-white`}
-          >
-            Chekout
-          </Link>
-          <Link
             to="/productmanagement"
             className={` ${
               location.pathname === "/productmanagement" ? "bg-gray-800" : ""
@@ -81,6 +92,22 @@ const MobileNavbar = () => {
           >
             Product Management
           </Link>
+          <Link to="/cart">
+            <NavigationMenuLink className="group mr-3 inline-flex relative top-2 h-10 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 hover:bg-[#ff8851]">
+              <ShoppingCart className="cursor-pointer w-5 text-white " />
+              {cart.items.length > 0 && (
+                <span className="ml-1 absolute right-[-10px] top-[-10px] bg-blue-600 text-white px-1 rounded px-2">
+                  {cart.items.reduce((total, item) => total + item.quantity, 0)}
+                </span>
+              )}
+            </NavigationMenuLink>
+          </Link>
+          <NavigationMenuLink className="group mr-3 inline-flex relative top-2 h-10 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 hover:bg-[#ff8851]">
+            <WishListDropdown />
+            <span className="ml-1 absolute right-[-10px] top-[-10px] bg-blue-600 text-white px-1 rounded px-2">
+              {wishList.length > 0 && wishList.length}
+            </span>
+          </NavigationMenuLink>
         </div>
         <SheetFooter>
           <SheetClose asChild>
