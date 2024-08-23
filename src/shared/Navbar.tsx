@@ -15,14 +15,14 @@ import MobileNavbar from "./MobileNavbar";
 const Navbar = () => {
   const cart = useSelector((state: RootState) => state.cart);
   const wishList = useSelector((state: RootState) => state.cart.wishList);
-  const [isFixed, setIsFixed] = useState(true); // Initially fixed
+  const [isFixed, setIsFixed] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY >= 300) {
-        setIsFixed(false); // Hide when scrolled down 300px
+        setIsFixed(false);
       } else {
-        setIsFixed(true); // Show when scrolled back up
+        setIsFixed(true);
       }
     };
 
@@ -46,7 +46,7 @@ const Navbar = () => {
         </Link>
         <NavigationMenu className="">
           <NavigationMenuList>
-            <div className="flex justify-end items-center">
+            <div className="lg:flex justify-end items-center hidden ">
               <NavigationMenuItem>
                 <Link to="/">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -95,7 +95,7 @@ const Navbar = () => {
               </NavigationMenuItem>
             </div>
           </NavigationMenuList>
-          <MobileNavbar cart={cart} wishList={wishList} />
+          <MobileNavbar clssasName="cursor-pointer" cart={cart} wishList={wishList} />
         </NavigationMenu>
       </div>
     </div>

@@ -19,9 +19,12 @@ const VideoPopup: React.FC<VideoPopupModalProps> = ({ videoUrl }) => {
 
   const videoId = extractVideoId(videoUrl);
   return (
-    <div>
-      <button className="btn-primary" onClick={() => setOpen(true)}>
-        <Play color="#000" />
+    <div className="absolute bottom-[55%] left-[43px] md:left-[50px] md:bottom-10">
+      <button
+        className="btn-primary video-play-button"
+        onClick={() => setOpen(true)}
+      >
+        <Play className="absolute z-10 top-[27px]" color="#fff" />
       </button>
       {videoId && (
         <ModalVideo

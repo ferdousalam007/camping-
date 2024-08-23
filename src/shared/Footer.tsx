@@ -6,7 +6,7 @@ const Footer = () => {
       <footer className=" text-gray-400 py-6">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="mb-4 md:mb-0 text-left border-r border-[#D0D6BC3D] px-6">
+            <div className="mb-4 md:mb-0 text-center md:text-left md:border-r md:border-[#D0D6BC3D] px-6">
               <h5 className="text-[25px] font-medium text-white mb-4">About</h5>
               <p>
                 At Campers Shop, we turn outdoor dreams into reality with
@@ -140,7 +140,7 @@ const Footer = () => {
                 </div>
               </div>
             </div>
-            <div className="text-left   border-l border-[#D0D6BC3D] px-6 md:pl-9">
+            <div className="text-center md:text-left   md:border-l md:border-[#D0D6BC3D] px-6 md:pl-9">
               <h5 className="text-[25px] font-medium text-white mb-4">
                 Useful Links
               </h5>

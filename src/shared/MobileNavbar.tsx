@@ -37,7 +37,7 @@ const MobileNavbar = ({ cart, wishList }: MobileNavbarProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <AlignJustify className="cursor-pointer text-white" />
+        <AlignJustify className="cursor-pointer text-white inline-block lg:hidden" />
       </SheetTrigger>
       <SheetContent className="bg-slate-900">
         <SheetHeader>

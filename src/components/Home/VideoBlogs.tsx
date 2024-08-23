@@ -9,8 +9,8 @@ const VideoBlogs = () => {
         headingText="Video Blogs"
         paragraphText="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium"
       />
-      <div className="grid grid-cols-1 md:grid-cols-2  gap-11 pt-10 pb-10 ">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-11 pt-10 pb-10 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg relative">
           <div className="w-full h-[325px]">
             <img
               src={blog1}
@@ -26,10 +26,11 @@ const VideoBlogs = () => {
               Lorem ipsum dolor sito amet, conse ctetuer adipiscing elit sed
               diam nonum nibhie euisod. Facilisis at vero
             </p>
-            <VideoPopup videoUrl="https://www.youtube.com/watch?v=L61p2uyiMSo" />
+            <p className="text-base font-semibold">August 23, 2019</p>
+            <VideoPopup videoUrl="https://www.youtube.com/watch?v=HkX0NE7Ujeg" />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg relative ">
           <div className="w-full h-[325px] ">
             <img
               src={blog2}
@@ -46,6 +47,7 @@ const VideoBlogs = () => {
               diam nonum nibhie euisod. Facilisis at vero
             </p>
             <p className="text-base font-semibold">August 23, 2019</p>
+            <VideoPopup videoUrl="https://www.youtube.com/watch?v=WdXnHb7s7Is" />
           </div>
         </div>
       </div>

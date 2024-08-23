@@ -85,7 +85,7 @@ const Categories = () => {
             {categoriesWithProductCounts?.map((category, index) => (
               <CarouselItem
                 key={category._id}
-                className="md:basis-1/2 lg:basis-1/4 "
+                className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
               >
                 <div className="p-1">
                   <Card className="border-0">

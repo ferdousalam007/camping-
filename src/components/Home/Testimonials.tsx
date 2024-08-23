@@ -142,8 +142,8 @@ const Testimonials = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute top-[110%]  left-[45%]" />
-            <CarouselNext className="absolute top-[110%]    right-[45%]" />
+            <CarouselPrevious className="absolute top-[110%] left-[40%]  md:left-[45%]" />
+            <CarouselNext className="absolute top-[110%]  right-[35%]  md:right-[45%]" />
           </Carousel>
         </div>
       </div>
