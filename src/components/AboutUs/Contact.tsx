@@ -10,13 +10,13 @@ const Contact = () => {
         headingText="Contact Us"
         paragraphText=" Aliquam sodales justo sit amet urna auctor scelerisquinterdum leo anet tempus enim esent egetis hendrerit vel nibh vitae ornar sem velit aliquam facilisivitae finibus risus"
       />
-      <div className="grid grid-cols-65-35  pt-14">
+      <div className="grid grid-cols-1 lg:grid-cols-65-35  pt-14 space-y-4 lg:space-y-0">
         <div>
           <Map />
         </div>
         <div className="shadow-custom rounded">
           <div className="rounded ">
-            <div className="bg-slate-700 text-center py-5 rounded-t-lg">
+            <div className="bg-[#1b352c] text-center py-5 rounded-t-lg">
               <h2 className="text-3xl font-semibold text-white">
                 Contact Info
               </h2>
@@ -24,7 +24,7 @@ const Contact = () => {
             <div>
               <div>
                 <div className="flex items-center gap-5 space-x-5 justify-center border-b-2 py-5">
-                  <MapIcon size={40} />
+                  <MapIcon size={40} color="#ff8851" />
                   <div>
                     <p className="text-xl font-bold">Our Location​</p>
                     <small className="text-base">
@@ -39,7 +39,7 @@ const Contact = () => {
               {" "}
               <div>
                 <div className="flex items-center gap-5 space-x-5 justify-center border-b-2 py-5">
-                  <PhoneCall size={40} />
+                  <PhoneCall size={40} color="#ff8851" />
                   <div>
                     <p className="text-xl font-bold">Phone Number</p>
                     <small className="text-base">
@@ -53,7 +53,7 @@ const Contact = () => {
             <div>
               <div>
                 <div className="flex items-center gap-5 space-x-5 justify-center border-b-2 py-5">
-                  <Mail size={40} />
+                  <Mail size={40} color="#ff8851" />
                   <div>
                     <p className="text-xl font-bold">Email Address​</p>
                     <small className="text-base">
@@ -79,7 +79,7 @@ const Contact = () => {
                       height="24"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="currentColor"
+                      stroke="#ff8851"
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -99,7 +99,7 @@ const Contact = () => {
                       height="24"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="currentColor"
+                      stroke="#ff8851"
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -119,7 +119,7 @@ const Contact = () => {
                       height="24"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="currentColor"
+                      stroke="#ff8851"
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"

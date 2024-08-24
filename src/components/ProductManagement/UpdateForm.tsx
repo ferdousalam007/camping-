@@ -183,7 +183,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
   if (isCategoriesLoading) return <div>Loading categories...</div>;
 
   return (
-    <div>
+    <div className="h-[500px] overflow-y-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

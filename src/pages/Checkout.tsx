@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RootState } from "@/redux/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,13 @@ import {
   TableCaption,
   TableFooter,
 } from "@/components/ui/table";
+import PageTitle from "@/components/PageTitle";
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: `Cart`, href: "/cart" },
+  { label: `Checkout` },
+];
 
 const userDetailsSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -108,190 +115,203 @@ const Checkout = () => {
 
   const totalPrice = cartItems.reduce((total, item) => {
     const product = products?.find((p: Product) => p._id === item.id);
-    return total + (product ? product?.price * item.quantity : 0);
+    return total + (product ? product.price * item.quantity : 0);
   }, 0);
 
   return (
-    <div className="container py-12">
-      <h1 className="text-2xl font-bold mb-4">Checkout</h1>
-      <form className="space-y-4" onSubmit={handleSubmit(handlePlaceOrder)}>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Name
-          </label>
-          <Controller
-            name="name"
-            control={control}
-            render={({ field }) => <Input {...field} />}
-          />
-          {errors.name && <p className="text-red-500">{errors.name.message}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => <Input {...field} />}
-          />
-          {errors.email && (
-            <p className="text-red-500">{errors.email.message}</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Phone
-          </label>
-          <Controller
-            name="phone"
-            control={control}
-            render={({ field }) => <Input {...field} />}
-          />
-          {errors.phone && (
-            <p className="text-red-500">{errors.phone.message}</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Address
-          </label>
-          <Controller
-            name="address"
-            control={control}
-            render={({ field }) => <Input {...field} />}
-          />
-          {errors.address && (
-            <p className="text-red-500">{errors.address.message}</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Payment Method
-          </label>
-          <div className="flex space-x-4">
-            <label>
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="cash"
-                checked={paymentMethod === "cash"}
-                onChange={() => setPaymentMethod("cash")}
-              />
-              Cash on Delivery
-            </label>
-            <label className="hidden">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="stripe"
-                checked={paymentMethod === "stripe"}
-                onChange={() => setPaymentMethod("stripe")}
-              />
-              Stripe
-            </label>
+    <div>
+      <PageTitle title="Checkout" breadcrumbs={breadcrumbs} />
+      <div className="container py-12">
+        {cartItems.length === 0 ? (
+            <div className="text-center py-44">
+            <h1 className="text-3xl font-bold mb-4">Cart is empty</h1>
+            <Link to="/products">
+              <Button className="bg-[#ff8851] text-white hover:bg-[#1b352c]">
+                Continue Shopping
+              </Button>
+            </Link>
           </div>
-        </div>
-        <Button type="submit" disabled={isLoading}>
-          Place Order
-        </Button>
-      </form>
+        ) : (
+          <>
+            <form
+              className="space-y-4"
+              onSubmit={handleSubmit(handlePlaceOrder)}
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => <Input {...field} />}
+                />
+                {errors.name && (
+                  <p className="text-red-500">{errors.name.message}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field }) => <Input {...field} />}
+                />
+                {errors.email && (
+                  <p className="text-red-500">{errors.email.message}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Phone
+                </label>
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field }) => <Input {...field} />}
+                />
+                {errors.phone && (
+                  <p className="text-red-500">{errors.phone.message}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Address
+                </label>
+                <Controller
+                  name="address"
+                  control={control}
+                  render={({ field }) => <Input {...field} />}
+                />
+                {errors.address && (
+                  <p className="text-red-500">{errors.address.message}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Payment Method
+                </label>
+                <div className="flex space-x-4">
+                  <label>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cash"
+                      checked={paymentMethod === "cash"}
+                      onChange={() => setPaymentMethod("cash")}
+                    />
+                    Cash on Delivery
+                  </label>
+                  {/* Removed hidden Stripe payment method for simplicity */}
+                </div>
+              </div>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Placing Order..." : "Place Order"}
+              </Button>
+            </form>
 
-      <h2 className="text-xl font-bold mt-8">Cart Items</h2>
-      {cartItems.length === 0 ? (
-        <p>You have no products added to your cart.</p>
-      ) : (
-        <div className="container">
-          <Table>
-            <TableCaption>A list of items in your cart.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="font-bold text-[#1b352c]">
-                  Product
-                </TableHead>
-                <TableHead className="font-bold text-[#1b352c]">
-                  Price
-                </TableHead>
-                <TableHead className="font-bold text-[#1b352c]">
-                  Quantity
-                </TableHead>
-                <TableHead className="text-right font-bold text-[#1b352c]">
-                  Total
-                </TableHead>
-                <TableHead className="text-right font-bold text-[#1b352c]">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {cartItems.map((item) => {
-                const product = products?.find(
-                  (p: Product) => p._id === item.id
-                );
+            <h2 className="text-xl font-bold mt-8">Cart Items</h2>
 
-                if (!product) return "No product found";
-                return (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">
-                      {product.name}
+            <div className="container">
+              <Table>
+                <TableCaption>A list of items in your cart.</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="font-bold text-[#1b352c]">
+                      Product
+                    </TableHead>
+                    <TableHead className="font-bold text-[#1b352c]">
+                      Price
+                    </TableHead>
+                    <TableHead className="font-bold text-[#1b352c]">
+                      Quantity
+                    </TableHead>
+                    <TableHead className="text-right font-bold text-[#1b352c]">
+                      Total
+                    </TableHead>
+                    <TableHead className="text-right font-bold text-[#1b352c]">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {cartItems.map((item) => {
+                    const product = products?.find(
+                      (p: Product) => p._id === item.id
+                    );
+
+                    if (!product)
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell colSpan={5}>No product found</TableCell>
+                        </TableRow>
+                      );
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">
+                          {product.name}
+                        </TableCell>
+                        <TableCell>${product.price}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell className="text-right">
+                          ${(product.price * item.quantity).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <button
+                            onClick={() => handleDecrease(item.id)}
+                            disabled={item.quantity <= 1}
+                            className={`mr-2 py-1 px-2 rounded font-bold cursor-pointer ${
+                              item.quantity <= 1
+                                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                                : "bg-[#1b352c] text-white hover:bg-[#ff8851]"
+                            }`}
+                          >
+                            -
+                          </button>
+
+                          <button
+                            onClick={() => handleIncrease(item.id)}
+                            disabled={item.quantity >= (product?.stock || 0)}
+                            className={`mr-2 py-1 px-2 rounded font-bold cursor-pointer ${
+                              item.quantity >= (product?.stock || 0)
+                                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                                : "bg-[#1b352c] text-white hover:bg-[#ff8851]"
+                            }`}
+                          >
+                            +
+                          </button>
+
+                          <button
+                            onClick={() => handleRemove(item.id)}
+                            className="py-1 px-2 rounded bg-[#1b352c] text-white hover:bg-[#ff8851] font-medium"
+                          >
+                            Remove
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell
+                      className="text-left text-lg font-bold"
+                      colSpan={2}
+                    >
+                      Total
                     </TableCell>
-                    <TableCell>${product.price}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell className="text-right">
-                      ${(product.price * item.quantity).toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <button
-                        onClick={() => handleDecrease(item.id)}
-                        disabled={item.quantity <= 1}
-                        className={`mr-2 py-1 px-2 rounded font-bold cursor-pointer ${
-                          item.quantity <= 1
-                            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                            : "bg-[#1b352c] text-white hover:bg-[#ff8851]"
-                        }`}
-                      >
-                        -
-                      </button>
-
-                      <button
-                        onClick={() => handleIncrease(item.id)}
-                        disabled={item.quantity >= (product?.stock || 0)}
-                        className={`mr-2 py-1 px-2 rounded font-bold cursor-pointer ${
-                          item.quantity >= (product?.stock || 0)
-                            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                            : "bg-[#1b352c] text-white hover:bg-[#ff8851]"
-                        }`}
-                      >
-                        +
-                      </button>
-
-                      <button
-                        className="py-1 px-2 rounded bg-[#1b352c] text-white hover:bg-[#ff8851] font-medium"
-                        onClick={() => handleRemove(item.id)}
-                      >
-                        Remove
-                      </button>
+                    <TableCell colSpan={3} className="text-right font-medium">
+                      ${totalPrice.toFixed(2)}
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell
-                  className="font-bold text-[#1b352c] text-xl"
-                  colSpan={3}
-                >
-                  Total:
-                </TableCell>
-                <TableCell className="text-right font-bold text-[#1b352c] text-xl">
-                  ${totalPrice.toFixed(2)}
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </div>
-      )}
+                </TableFooter>
+              </Table>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

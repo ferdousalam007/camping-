@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// Ensure you have a CSS file for styling
+import ReactImageMagnify from "react-image-magnify";
 
 interface ProductSliderProps {
   imageUrls: string[];
@@ -7,8 +7,6 @@ interface ProductSliderProps {
 
 const ProductSlider: React.FC<ProductSliderProps> = ({ imageUrls }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
-  const [showMagnifier, setShowMagnifier] = useState(false);
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % imageUrls.length);
@@ -24,41 +22,35 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ imageUrls }) => {
     setCurrentIndex(index);
   };
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLImageElement>) => {
-    const { left, top, width, height } =
-      event.currentTarget.getBoundingClientRect();
-    const x = ((event.pageX - left) / width) * 100;
-    const y = ((event.pageY - top) / height) * 100;
-    setMagnifierPosition({ x, y });
-  };
-
   return (
-    <div className="product-slider">
+    <div className="product-slider overflow-hidden">
       <button onClick={prevSlide} className="slider-button prev">
         &lt;
       </button>
-      <div
-        className="slider-image-container"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setShowMagnifier(true)}
-        onMouseLeave={() => setShowMagnifier(false)}
-      >
-        <img
-          src={imageUrls[currentIndex]}
-          alt={`Slide ${currentIndex}`}
-          className="slider-image"
-        />
-        {showMagnifier && (
-          <div
-            className="magnifier"
-            style={{
-              backgroundImage: `url(${imageUrls[currentIndex]})`,
-              backgroundPosition: `${magnifierPosition.x}% ${magnifierPosition.y}%`,
-              left: `${magnifierPosition.x}%`,
-              top: `${magnifierPosition.y}%`,
+      <div className="slider-image-container">
+        <div className=" mx-auto">
+          <ReactImageMagnify
+            {...{
+              smallImage: {
+                alt: `Product Image ${currentIndex + 1}`,
+                isFluidWidth: true,
+                src: imageUrls[currentIndex],
+               
+              },
+              largeImage: {
+                src: imageUrls[currentIndex],
+                width: 836,
+                height: 1400,
+              },
+              enlargedImagePosition: "over",
+              lensStyle: { backgroundColor: "rgba(0,0,0,.3)" },
+              // enlargedImageContainerDimensions: {
+              //   width: "200%",
+              //   height: "200%",
+              // },
             }}
           />
-        )}
+        </div>
       </div>
       <button onClick={nextSlide} className="slider-button next">
         &gt;
@@ -69,7 +61,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ imageUrls }) => {
           <img
             key={index}
             src={url}
-            alt={`Thumbnail ${index}`}
+            alt={`Thumbnail ${index + 1}`}
             className={`thumbnail ${index === currentIndex ? "active" : ""}`}
             onClick={() => goToSlide(index)}
           />

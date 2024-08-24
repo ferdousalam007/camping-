@@ -26,6 +26,14 @@ export const baseApi = createApi({
             }),
             invalidatesTags: ['Product', 'Category', 'Order'],
         }),
+        getAllOrder: builder.query({
+           query: () => ({
+               url: '/orders',
+               method: 'GET',
+               credentials: 'include'
+           }),
+           providesTags: ['Order'], 
+        }),
         getAllproduct: builder.query({
             query: () => ({
                 url: '/products',
@@ -128,5 +136,6 @@ export const {
     useUpdateSingleProductMutation,
     useCreateOrderMutation,
     useGetAllproductQuery,
+    useGetAllOrderQuery,
 
 } = baseApi;
