@@ -26,8 +26,9 @@ const productSchema = z.object({
   description: z.string().min(1, "Description is required"),
   category: z.string().min(1, "Category is required"),
   ratings: z.number().min(0).max(5).optional(),
+  
   images: z
-    .instanceof(FileList)
+    .array(z.instanceof(File))
     .nullable()
     .refine(
       (files) =>
@@ -36,13 +37,11 @@ const productSchema = z.object({
         message: `Please upload between 1 and ${MAX_IMAGES} images.`,
       }
     )
-    .refine(
-      (files) => files === null || Array.from(files).every(isValidImageFile),
-      {
-        message:
-          "Each image must be a valid file type (jpg, png, jpeg) and under 5MB.",
-      }
-    ),
+    .refine((files) => files === null || files.every(isValidImageFile), {
+      message:
+        "Each image must be a valid file type (jpg, png, jpeg) and under 5MB.",
+    }),
+
   featured: z.boolean().optional(),
   recommended: z.boolean().optional(),
 });
@@ -154,13 +153,11 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     if (data.recommended !== undefined) {
       formData.append("recommended", data.recommended.toString());
     }
-    if (watchImages && watchImages.length > 0) {
-      Array.from(watchImages).forEach((file) =>
-        formData.append("images", file)
-      );
-    } else if (imageUrl) {
-      formData.append("imageUrl", imageUrl);
-    }
+   if (watchImages && watchImages.length > 0) {
+     watchImages.forEach((file) => formData.append("images", file));
+   } else if (Array.isArray(imageUrl) && imageUrl.length > 0) {
+     imageUrl.forEach((url) => formData.append("imageUrl", url));
+   }
 
     await updateProduct({ id: _id, formData: formData });
 
