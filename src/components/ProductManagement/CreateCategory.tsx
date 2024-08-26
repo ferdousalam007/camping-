@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { Toaster, toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
@@ -32,17 +33,20 @@ const CreateCategory = () => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("image", data.image[0]);
-
-    await createCategory(formData);
-
-    if (isSuccess) {
-      reset();
+    try {
+      await createCategory(formData);
+      reset({
+        name: "",
+        image: new DataTransfer().files as FileList,
+      });
+    } catch (err) {
+      console.error("Failed to create category:", err);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-semibold mb-6">Create Category</h1>
+    <div className=" mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-bold mb-4 text-center">Create Category</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <label
@@ -85,7 +89,7 @@ const CreateCategory = () => {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#1b352c] hover:bg-[#ff8851] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           {isLoading ? "Submitting..." : "Submit"}
         </Button>

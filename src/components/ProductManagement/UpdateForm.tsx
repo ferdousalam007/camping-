@@ -10,6 +10,7 @@ import {
 import { Product } from "@type/type";
 import CreateCategoryDialog from "./CreateCategoryDialog";
 import { Button } from "@/components/ui/button";
+import { toast, Toaster } from "sonner";
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -49,6 +50,7 @@ const productSchema = z.object({
 type UpdateFormProps = {
   selectedProduct: Product;
   onClose: () => void;
+ 
   setSelectedProduct: (product: Product) => void;
 };
 
@@ -59,6 +61,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
   onClose,
   // setSelectedProduct,
 }) => {
+   
   const [previews, setPreviews] = useState<string[]>(
     Array.isArray(selectedProduct.imageUrl)
       ? selectedProduct.imageUrl
@@ -123,13 +126,12 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     [setValue]
   );
 
- const { getRootProps, getInputProps } = useDropzone({
-   onDrop,
-   accept: ["image/jpeg", "image/png", "image/jpg"],
-   maxSize: MAX_IMAGE_SIZE,
-   multiple: true,
- });
-
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: ["image/jpeg", "image/png", "image/jpg"],
+    maxSize: MAX_IMAGE_SIZE,
+    multiple: true,
+  });
 
   const onSubmit = async (data: ProductFormValues) => {
     const formData = new FormData();
@@ -152,15 +154,24 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
       watchImages.forEach((file) => formData.append("images", file));
     } else if (Array.isArray(imageUrl) && imageUrl.length > 0) {
       imageUrl.forEach((url) => formData.append("imageUrl", url));
+    } else if (typeof imageUrl === "string") {
+      // Check if imageUrl is a string
+      formData.append("imageUrl", imageUrl); // Append as a single string
     }
 
     await updateProduct({ id: _id, formData: formData });
 
-    if (isSuccess) {
-      reset();
-      onClose();
-    }
+   
   };
+ useEffect(() => {
+   if (isSuccess) {
+     const handleSuccess = () => {
+       reset();
+       onClose();
+     };
+     handleSuccess();
+   }
+ }, [isSuccess, onClose, reset]);
 
   useEffect(() => {
     if (selectedProduct.imageUrl) {
@@ -176,6 +187,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
 
   return (
     <div className="h-[500px] overflow-y-auto">
+      <Toaster position="top-center" richColors />
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -255,7 +267,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
               htmlFor="category"
               className="block text-sm font-medium text-gray-700"
             >
-             Select Category:
+              Select Category:
             </label>
             <div className="flex">
               <select
@@ -275,7 +287,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
                 onClick={handleCategoryClick}
                 variant="outline"
               >
-               + Add Category
+                + Add Category
               </Button>
             </div>
             {errors.category && (
@@ -392,11 +404,13 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
           >
             {isLoading ? "Updating..." : "Update Product"}
           </button>
+          <Button onClick={onClose} variant="outline">
+            Close
+          </Button>
         </div>
       </form>
-      {isSuccess && (
-        <p className="mt-2 text-green-600">Product updated successfully.</p>
-      )}
+      {isSuccess &&
+        toast.success("Product updated successfully", { duration: 2000 })}
       {/* Create Category Dialog */}
       {isCreateCategoryDialogOpen && (
         <CreateCategoryDialog
@@ -409,4 +423,3 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
 };
 
 export default UpdateForm;
-

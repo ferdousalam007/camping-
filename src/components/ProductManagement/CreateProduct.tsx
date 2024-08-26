@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Toaster, toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -118,7 +119,7 @@ const CreateProduct = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-4">Create Product</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">Create Product</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -311,20 +312,16 @@ const CreateProduct = () => {
         </div>
         <Button
           type="submit"
-          className="mt-4 w-full"
+          className="mt-4 w-full bg-[#1b352c] hover:bg-[#ff8851]"
           disabled={isLoading || isCategoriesLoading}
         >
           {isLoading || isCategoriesLoading
             ? "Submitting..."
             : "Create Product"}
         </Button>
-        {
-        isSuccess && (
-          <p className="mt-4 text-green-600">
-            Product created successfully
-          </p>
-        )
-        }
+        {isSuccess && (
+          <p className="mt-4 text-green-600">Product created successfully</p>
+        )}
         {isError && (
           <p className="mt-4 text-red-600">
             {(error as any)?.data?.message || "An error occurred"}
