@@ -1,12 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
+import { Toaster, toast } from "sonner";
 import { useGetSinglProductQuery } from "@/redux/api/baseApi";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { Heart,  ShoppingCart, Star } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 import Rating from "react-rating";
-import { addToCart, addToWishList, removeFromWishList } from "@/redux/slice/cartSlice";
+import {
+  addToCart,
+  addToWishList,
+  removeFromWishList,
+} from "@/redux/slice/cartSlice";
 import { RootState } from "@redux/store";
 import ProductSlider from "@/components/ProductSlider";
 import PageTitle from "@/components/PageTitle";
@@ -31,21 +34,30 @@ const ProductDetails = () => {
   const cartItem = useSelector((state: RootState) =>
     state.cart.items.find((item: any) => item.id === id)
   );
- 
+
   // Select the current state of the wishlist
   const wishListItems = useSelector((state: any) =>
     state.cart.wishList.filter((item: any) => item.id === id)
   );
-const handleAddToWishlist = () => {
-  if (wishListItems.length > 0) {
-    // If the item is already in the wishlist, remove it
-    dispatch(removeFromWishList(id as string));
-  } else {
-    // Otherwise, add the item to the wishlist
-    dispatch(addToWishList(id as string));
-  }
-};
 
+  const handleAddToCart = () => {
+    if (cartItem && cartItem.quantity >= stock) {
+      toast.error("This item is are not available in stock.", { duration: 2000 });
+      return;
+    }
+    dispatch(addToCart(id as string));
+    toast.success("Item added to cart!", { duration: 2000 });
+  };
+
+  const handleAddToWishlist = () => {
+    if (wishListItems.length > 0) {
+      dispatch(removeFromWishList(id as string));
+      toast.success("Removed from wishlist!", { duration: 2000 });
+    } else {
+      dispatch(addToWishList(id as string));
+      toast.success("Added to wishlist!", { duration: 2000 });
+    }
+  };
 
   if (isLoading)
     return (
@@ -53,7 +65,6 @@ const handleAddToWishlist = () => {
         Loading....
       </p>
     );
-  
 
   if (!data?.data)
     return (
@@ -62,26 +73,23 @@ const handleAddToWishlist = () => {
       </p>
     );
 
-  const handleAddToCart = () => {
-    if (cartItem && cartItem.quantity >= stock) {
-      return;
-    }
-    dispatch(addToCart(id as string));
-  };
-const breadcrumbs = [
-  { label: "Home", href: "/" },
-  { label: "Products", href: "/products" },
-  { label: `${ name }` },
-];
+  const breadcrumbs = [
+    { label: "Home", href: "/" },
+    { label: "Products", href: "/products" },
+    { label: `${name}` },
+  ];
+
   return (
     <>
+      {/* Add Toaster component to render the toast messages */}
+      <Toaster position="top-center" richColors />
+
       <PageTitle title="Product Details" breadcrumbs={breadcrumbs} />
       <div className="container py-14">
-      
         <div className="flex flex-col items-center p-4  text-black ">
           <div className="max-w-6xl w-full  rounded-lg shadow-lg p-6 animate__animated animate__fadeIn">
             <div className="grid grid-cols-1  md:grid-cols-2 gap-5">
-              <ProductSlider  imageUrls={imageUrl} />
+              <ProductSlider imageUrls={imageUrl} />
               <div className="flex flex-col justify-between pl-4">
                 <div className="text-gray-900 mb-4">
                   <h2 className="text-2xl font-bold  mb-2">{name}</h2>
@@ -105,7 +113,7 @@ const breadcrumbs = [
                       Customer reviews:
                     </span>
                     <div className="ml-2 flex">
-                      {/* @ts-expect-error their is no type declaration file for react rating*/}
+                      {/* @ts-expect-error there is no type declaration file for react rating */}
                       <Rating
                         placeholderRating={ratings}
                         readonly

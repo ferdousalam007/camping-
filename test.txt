@@ -1,10 +1,24 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useState, useEffect, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
 import {
-  useCreateProductMutation,
+  useUpdateSingleProductMutation,
   useGetCategoriesQuery,
 } from "@/redux/api/baseApi";
+import { Product } from "@type/type";
+import CreateCategoryDialog from "./CreateCategoryDialog";
+import { Button } from "@/components/ui/button";
+
+const MAX_IMAGES = 5;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+const isValidImageFile = (file?: File) => {
+  const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+  return file && validTypes.includes(file.type) && file.size <= MAX_IMAGE_SIZE;
+};
+
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   price: z.number().min(0, "Price must be a positive number"),
@@ -12,29 +26,125 @@ const productSchema = z.object({
   description: z.string().min(1, "Description is required"),
   category: z.string().min(1, "Category is required"),
   ratings: z.number().min(0).max(5).optional(),
-  image: z.instanceof(FileList).refine((files) => files.length > 0, {
-    message: "Image is required",
-  }),
+
+  images: z
+    .array(z.instanceof(File))
+    .nullable()
+    .refine(
+      (files) =>
+        files === null || (files.length > 0 && files.length <= MAX_IMAGES),
+      {
+        message: `Please upload between 1 and ${MAX_IMAGES} images.`,
+      }
+    )
+    .refine((files) => files === null || files.every(isValidImageFile), {
+      message:
+        "Each image must be a valid file type (jpg, png, jpeg) and under 5MB.",
+    }),
+
   featured: z.boolean().optional(),
   recommended: z.boolean().optional(),
 });
 
+type UpdateFormProps = {
+  selectedProduct: Product;
+  onClose: () => void;
+  setSelectedProduct: (product: Product) => void;
+};
+
 type ProductFormValues = z.infer<typeof productSchema>;
 
-const CreateProduct = () => {
+const UpdateForm: React.FC<UpdateFormProps> = ({
+  selectedProduct,
+  onClose,
+  setSelectedProduct,
+}) => {
+  const [previews, setPreviews] = useState<string[]>(
+    Array.isArray(selectedProduct.imageUrl)
+      ? selectedProduct.imageUrl
+      : selectedProduct.imageUrl
+      ? selectedProduct.imageUrl.split(",")
+      : []
+  );
+  const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
+    useState(false);
+
+  const handleCategoryClick = () => {
+    setIsCreateCategoryDialogOpen(true);
+  };
+
+  const {
+    name,
+    price,
+    stock,
+    description,
+    category,
+    ratings,
+    imageUrl,
+    featured,
+    recommended,
+    _id,
+  }: Product = selectedProduct;
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
+    defaultValues: {
+      name,
+      price,
+      stock,
+      description,
+      category: category?._id,
+      ratings,
+      images: null,
+      featured,
+      recommended,
+    },
   });
 
-  const [createProduct, { isLoading, isError, error, isSuccess }] =
-    useCreateProductMutation();
+  const [updateProduct, { isLoading, isError, error, isSuccess }] =
+    useUpdateSingleProductMutation();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
+  const watchImages = watch("images");
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const files = acceptedFiles.slice(0, MAX_IMAGES);
+      setPreviews(files.map((file) => URL.createObjectURL(file)));
+      setValue("images", files as any); // Update the form's image field
+    },
+    [setValue]
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: ["image/jpeg", "image/png", "image/jpg"],
+    maxSize: MAX_IMAGE_SIZE,
+    multiple: true,
+    maxFiles: MAX_IMAGES,
+  });
+
+const handleRemoveImage = (
+  index: number,
+  previews: string[],
+  setValue: (value: File[] | null) => void
+) => {
+  const prevPreviews = [...previews];
+  setPreviews((prev) => prev.filter((_, i) => i !== index));
+  if (prev) {
+    setValue([...prev.filter((_, i) => i !== index)]);
+  } else {
+    setValue([] as File[]);
+  }
+  URL.revokeObjectURL(prevPreviews[index]);
+};
 
   const onSubmit = async (data: ProductFormValues) => {
     const formData = new FormData();
@@ -43,6 +153,7 @@ const CreateProduct = () => {
     formData.append("stock", data.stock.toString());
     formData.append("description", data.description);
     formData.append("category", data.category);
+
     if (data.ratings !== undefined) {
       formData.append("ratings", data.ratings.toString());
     }
@@ -52,17 +163,34 @@ const CreateProduct = () => {
     if (data.recommended !== undefined) {
       formData.append("recommended", data.recommended.toString());
     }
-    formData.append("image", data.image[0]);
+    if (watchImages && watchImages.length > 0) {
+      watchImages.forEach((file) => formData.append("images", file));
+    } else if (Array.isArray(imageUrl) && imageUrl.length > 0) {
+      imageUrl.forEach((url) => formData.append("imageUrl", url));
+    }
 
-    await createProduct(formData);
+    await updateProduct({ id: _id, formData: formData });
 
     if (isSuccess) {
       reset();
+      onClose();
     }
   };
+
+  useEffect(() => {
+    if (selectedProduct.imageUrl) {
+      setPreviews(
+        Array.isArray(selectedProduct.imageUrl)
+          ? selectedProduct.imageUrl
+          : selectedProduct.imageUrl.split(",")
+      );
+    }
+  }, [selectedProduct.imageUrl]);
+
+  if (isCategoriesLoading) return <div>Loading categories...</div>;
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-4">Create Product</h1>
+    <div className="h-[500px] overflow-y-auto">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -110,7 +238,7 @@ const CreateProduct = () => {
             <input
               id="price"
               type="number"
-              step="0.01"
+              step="1"
               {...register("price", { valueAsNumber: true })}
               className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
@@ -144,19 +272,27 @@ const CreateProduct = () => {
             >
               Category:
             </label>
-            <select
-              id="category"
-              {...register("category")}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              {categories?.data.map(
-                (category: { _id: string; name: string }) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
+            <div className="flex">
+              <select
+                id="category"
+                {...register("category")}
+                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="">Select a category</option>
+                {categories?.data?.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
                   </option>
-                )
-              )}
-            </select>
+                ))}
+              </select>
+              <Button
+                type="button"
+                onClick={handleCategoryClick}
+                className="ml-2 text-sm bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                Create Category
+              </Button>
+            </div>
             {errors.category && (
               <p className="mt-2 text-red-600">{errors.category.message}</p>
             )}
@@ -166,12 +302,11 @@ const CreateProduct = () => {
               htmlFor="ratings"
               className="block text-sm font-medium text-gray-700"
             >
-              Ratings:
+              Ratings (Optional):
             </label>
             <input
               id="ratings"
               type="number"
-              step="0.1"
               {...register("ratings", { valueAsNumber: true })}
               className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
@@ -180,273 +315,523 @@ const CreateProduct = () => {
             )}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 items-end gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Upload Images (max {MAX_IMAGES}):
+          </label>
+          <div
+            {...getRootProps()}
+            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-md"
+          >
+            <input {...getInputProps()} />
+            <p className="text-center">
+              Drag 'n' drop some files here, or click to select files
+            </p>
+          </div>
+          {previews.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {previews.map((preview, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    className="h-24 w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleRemoveImage(index);
+                      URL.revokeObjectURL(preview); // Revoke the object URL
+                    }}
+                    className="absolute top-1 right-1 text-white bg-red-500 rounded-full p-1"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {errors.images && (
+            <p className="mt-2 text-red-600">{errors.images.message}</p>
+          )}
+        </div>
+        <div className="flex items-center">
+          <input
+            id="featured"
+            type="checkbox"
+            {...register("featured")}
+            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          />
+          <label
+            htmlFor="featured"
+            className="ml-2 block text-sm text-gray-900"
+          >
+            Featured
+          </label>
+        </div>
+        <div className="flex items-center">
+          <input
+            id="recommended"
+            type="checkbox"
+            {...register("recommended")}
+            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          />
+          <label
+            htmlFor="recommended"
+            className="ml-2 block text-sm text-gray-900"
+          >
+            Recommended
+          </label>
+        </div>
+        <div className="mt-6">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+              isLoading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+          >
+            {isLoading ? "Updating..." : "Update Product"}
+          </button>
+        </div>
+      </form>
+      {isSuccess && (
+        <p className="mt-2 text-green-600">Product updated successfully.</p>
+      )}
+      {/* Create Category Dialog */}
+      {isCreateCategoryDialogOpen && (
+        <CreateCategoryDialog
+          isOpenCategory={isCreateCategoryDialogOpen}
+          onCloseCategory={() => setIsCreateCategoryDialogOpen(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default UpdateForm;
+
+
+
+
+
+
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useState, useEffect, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import {
+  useUpdateSingleProductMutation,
+  useGetCategoriesQuery,
+} from "@/redux/api/baseApi";
+import { Product } from "@type/type";
+import CreateCategoryDialog from "./CreateCategoryDialog";
+import { Button } from "@/components/ui/button";
+
+const MAX_IMAGES = 5;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+const isValidImageFile = (file?: File) => {
+  const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+  return file && validTypes.includes(file.type) && file.size <= MAX_IMAGE_SIZE;
+};
+
+const productSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  price: z.number().min(0, "Price must be a positive number"),
+  stock: z.number().min(0, "Stock must be a non-negative number"),
+  description: z.string().min(1, "Description is required"),
+  category: z.string().min(1, "Category is required"),
+  ratings: z.number().min(0).max(5).optional(),
+
+  images: z
+    .array(z.instanceof(File))
+    .nullable()
+    .refine(
+      (files) =>
+        files === null || (files.length > 0 && files.length <= MAX_IMAGES),
+      {
+        message: `Please upload between 1 and ${MAX_IMAGES} images.`,
+      }
+    )
+    .refine((files) => files === null || files.every(isValidImageFile), {
+      message:
+        "Each image must be a valid file type (jpg, png, jpeg) and under 5MB.",
+    }),
+
+  featured: z.boolean().optional(),
+  recommended: z.boolean().optional(),
+});
+
+type UpdateFormProps = {
+  selectedProduct: Product;
+  onClose: () => void;
+  setSelectedProduct: (product: Product) => void;
+};
+
+type ProductFormValues = z.infer<typeof productSchema>;
+
+const UpdateForm: React.FC<UpdateFormProps> = ({
+  selectedProduct,
+  onClose,
+  // setSelectedProduct,
+}) => {
+  const [previews, setPreviews] = useState<string[]>(
+    Array.isArray(selectedProduct.imageUrl)
+      ? selectedProduct.imageUrl
+      : selectedProduct.imageUrl
+      ? [selectedProduct.imageUrl] // Wrap the single string in an array
+      : []
+  );
+  const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
+    useState(false);
+
+  const handleCategoryClick = () => {
+    setIsCreateCategoryDialogOpen(true);
+  };
+
+  const {
+    name,
+    price,
+    stock,
+    description,
+    category,
+    ratings,
+    imageUrl,
+    featured,
+    recommended,
+    _id,
+  }: Product = selectedProduct;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+    setValue,
+  } = useForm<ProductFormValues>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name,
+      price,
+      stock,
+      description,
+      category: category?._id,
+      ratings,
+      images: null,
+      featured,
+      recommended,
+    },
+  });
+
+  const [updateProduct, { isLoading, isError, error, isSuccess }] =
+    useUpdateSingleProductMutation();
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetCategoriesQuery("");
+  const watchImages = watch("images");
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const files = acceptedFiles.slice(0, MAX_IMAGES);
+      setPreviews(files.map((file) => URL.createObjectURL(file)));
+      setValue("images", files as any); // Update the form's image field
+    },
+    [setValue]
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: ["image/jpeg", "image/png", "image/jpg"],
+    maxSize: MAX_IMAGE_SIZE,
+    multiple: true,
+    maxFiles: MAX_IMAGES,
+  });
+
+  const handleRemoveImage = (
+    index: number,
+    previews: string[],
+    setValue: (field: keyof ProductFormValues, value: File[] | null) => void
+  ) => {
+    const newPreviews = previews.filter((_, i) => i !== index);
+    setPreviews(newPreviews);
+    // Check if watchImages is null before using it
+    const newFiles = newPreviews
+      .map((_, idx) => watchImages && watchImages[idx])
+      .filter((_, idx) => idx !== index);
+    // Skip unchanged code
+    setValue(
+      "images",
+      newFiles.length > 0
+        ? newFiles.filter((file): file is File => file !== null)
+        : null
+    );
+    URL.revokeObjectURL(previews[index]);
+  };
+
+
+
+
+  const onSubmit = async (data: ProductFormValues) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("price", data.price.toString());
+    formData.append("stock", data.stock.toString());
+    formData.append("description", data.description);
+    formData.append("category", data.category);
+
+    if (data.ratings !== undefined) {
+      formData.append("ratings", data.ratings.toString());
+    }
+    if (data.featured !== undefined) {
+      formData.append("featured", data.featured.toString());
+    }
+    if (data.recommended !== undefined) {
+      formData.append("recommended", data.recommended.toString());
+    }
+    if (watchImages && watchImages.length > 0) {
+      watchImages.forEach((file) => formData.append("images", file));
+    } else if (Array.isArray(imageUrl) && imageUrl.length > 0) {
+      imageUrl.forEach((url) => formData.append("imageUrl", url));
+    }
+
+    await updateProduct({ id: _id, formData: formData });
+
+    if (isSuccess) {
+      reset();
+      onClose();
+    }
+  };
+
+   useEffect(() => {
+     if (selectedProduct.imageUrl) {
+       setPreviews(
+         Array.isArray(selectedProduct.imageUrl)
+           ? selectedProduct.imageUrl
+           : [selectedProduct.imageUrl] // Wrap the single string in an array
+       );
+     }
+   }, [selectedProduct.imageUrl]);
+
+  if (isCategoriesLoading) return <div>Loading categories...</div>;
+
+  return (
+    <div className="h-[500px] overflow-y-auto">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label
-              htmlFor="image"
+              htmlFor="name"
               className="block text-sm font-medium text-gray-700"
             >
-              Image:
+              Name:
             </label>
             <input
-              id="image"
-              type="file"
-              {...register("image")}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer"
+              id="name"
+              type="text"
+              {...register("name")}
+              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
-            {errors.image && (
-              <p className="mt-2 text-red-600">{`image is required provide a file like png jpeg jpg ${errors.image.message}`}</p>
+            {errors.name && (
+              <p className="mt-2 text-red-600">{errors.name.message}</p>
             )}
           </div>
           <div>
-            <label htmlFor="featured" className="inline-flex items-center">
-              <input
-                id="featured"
-                type="checkbox"
-                {...register("featured")}
-                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200"
-              />
-              <span className="ml-2 text-sm text-gray-600">Featured</span>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Description:
             </label>
-            <label htmlFor="recommended" className="inline-flex items-center">
-              <input
-                id="recommended"
-                type="checkbox"
-                {...register("recommended")}
-                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 ml-2"
-              />
-              <span className="ml-2 text-sm text-gray-600">Recommended</span>
-            </label>
+            <textarea
+              id="description"
+              {...register("description")}
+              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            {errors.description && (
+              <p className="mt-2 text-red-600">{errors.description.message}</p>
+            )}
           </div>
         </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Submit
-        </button>
-        {isError && (
-          <p className="mt-2 text-red-600">
-            Error: {(error as Error).message || "Something went wrong"}
-          </p>
-        )}
-        {isSuccess && (
-          <p className="mt-2 text-green-600">Product created successfully!</p>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Price:
+            </label>
+            <input
+              id="price"
+              type="number"
+              step="1"
+              {...register("price", { valueAsNumber: true })}
+              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            {errors.price && (
+              <p className="mt-2 text-red-600">{errors.price.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="stock"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Stock:
+            </label>
+            <input
+              id="stock"
+              type="number"
+              {...register("stock", { valueAsNumber: true })}
+              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            {errors.stock && (
+              <p className="mt-2 text-red-600">{errors.stock.message}</p>
+            )}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Category:
+            </label>
+            <div className="flex">
+              <select
+                id="category"
+                {...register("category")}
+                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="">Select a category</option>
+                {categories?.data?.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <Button
+                type="button"
+                onClick={handleCategoryClick}
+                variant="outline"
+              >
+                Add
+              </Button>
+            </div>
+            {errors.category && (
+              <p className="mt-2 text-red-600">{errors.category.message}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="ratings"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Ratings (Optional):
+            </label>
+            <input
+              id="ratings"
+              type="number"
+              {...register("ratings", { valueAsNumber: true })}
+              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            {errors.ratings && (
+              <p className="mt-2 text-red-600">{errors.ratings.message}</p>
+            )}
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Upload Images (max {MAX_IMAGES}):
+          </label>
+          <div
+            {...getRootProps()}
+            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-md"
+          >
+            <input {...getInputProps()} />
+            <p className="text-center">
+              Drag 'n' drop some files here, or click to select files
+            </p>
+          </div>
+          {previews.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {previews.map((preview, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    className="h-24 w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index, previews, setValue)}
+                    className="absolute top-1 right-1 text-white bg-red-500 rounded-full p-1"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {errors.images && (
+            <p className="mt-2 text-red-600">{errors.images.message}</p>
+          )}
+        </div>
+        <div className="flex items-center">
+          <input
+            id="featured"
+            type="checkbox"
+            {...register("featured")}
+            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          />
+          <label
+            htmlFor="featured"
+            className="ml-2 block text-sm text-gray-900"
+          >
+            Featured
+          </label>
+        </div>
+        <div className="flex items-center">
+          <input
+            id="recommended"
+            type="checkbox"
+            {...register("recommended")}
+            className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+          />
+          <label
+            htmlFor="recommended"
+            className="ml-2 block text-sm text-gray-900"
+          >
+            Recommended
+          </label>
+        </div>
+        <div className="mt-6">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+              isLoading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+          >
+            {isLoading ? "Updating..." : "Update Product"}
+          </button>
+        </div>
       </form>
-    </div>
-  );
-};
-
-export default CreateProduct;
-
-
-
-
-
-
-import { useState } from "react";
-import { useGetAllOrderQuery } from "@/redux/api/baseApi";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-
-const GetAllOrder = () => {
-  const { data: orderData, isLoading } = useGetAllOrderQuery("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const itemsPerPage = 10;
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  const filteredData = orderData?.data.filter(
-    (order: any) =>
-      order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-  const currentItems = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const handlePreviousPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleViewDetails = (order: any) => {
-    setSelectedOrder(order);
-  };
-
-  return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-4 text-center">Get All Orders</h1>
-
-      <div className="flex justify-center mb-4">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          placeholder="Search by name or email"
-          className="px-4 py-2 border border-gray-300 rounded w-full max-w-lg"
+      {isSuccess && (
+        <p className="mt-2 text-green-600">Product updated successfully.</p>
+      )}
+      {/* Create Category Dialog */}
+      {isCreateCategoryDialogOpen && (
+        <CreateCategoryDialog
+          isOpenCategory={isCreateCategoryDialogOpen}
+          onCloseCategory={() => setIsCreateCategoryDialogOpen(false)}
         />
-      </div>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Total Price</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {currentItems.map((order: any) => (
-            <TableRow key={order._id}>
-              <TableCell>{order.name}</TableCell>
-              <TableCell>{order.email}</TableCell>
-              <TableCell>{order.totalPrice}</TableCell>
-              <TableCell>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      onClick={() => handleViewDetails(order)}
-                      className="px-4 py-2 bg-[#1b352c] text-white rounded"
-                    >
-                      Details
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-h-[500px] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Order Details</DialogTitle>
-                      <DialogDescription>
-                        Detailed information about the order.
-                      </DialogDescription>
-                    </DialogHeader>
-                    {selectedOrder && (
-                      <div>
-                        <p>
-                          <strong>Name:</strong> {selectedOrder.name}
-                        </p>
-                        <p>
-                          <strong>Email:</strong> {selectedOrder.email}
-                        </p>
-                        <p>
-                          <strong>Phone:</strong> {selectedOrder.phone}
-                        </p>
-                        <p>
-                          <strong>Address:</strong> {selectedOrder.address}
-                        </p>
-                        <p>
-                          <strong>Total Price:</strong>{" "}
-                          {selectedOrder.totalPrice}
-                        </p>
-                        <h3 className="text-lg font-semibold mt-4">
-                          Cart Items:
-                        </h3>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Product Name</TableHead>
-                              <TableHead>Quantity</TableHead>
-                              <TableHead>Price</TableHead>
-                              <TableHead>Image</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {selectedOrder.cartItems.map((item: any) => (
-                              <TableRow key={item._id}>
-                                <TableCell>{item.id.name}</TableCell>
-                                <TableCell>{item.quantity}</TableCell>
-                                <TableCell>{item.id.price}</TableCell>
-                                <TableCell>
-                                  <img
-                                    src={item.id.imageUrl[0]}
-                                    alt={item.id.name}
-                                    className="w-16 h-16 object-cover"
-                                  />
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button
-                          type="button"
-                          className="px-4 py-2 bg-[#ff8851] hover:bg-[#1b352c] text-white rounded"
-                          variant="secondary"
-                        >
-                          Close
-                        </Button>
-                      </DialogClose>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      <div className="flex justify-center mt-4">
-        <button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          className="px-4 py-2 mx-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <span className="px-4 py-2">
-          Page {currentPage} of {totalPages}
-        </span>
-        <button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 mx-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      )}
     </div>
   );
 };
 
-export default GetAllOrder;
-
-
+export default UpdateForm;

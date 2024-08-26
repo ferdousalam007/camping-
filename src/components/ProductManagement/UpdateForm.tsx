@@ -26,7 +26,7 @@ const productSchema = z.object({
   description: z.string().min(1, "Description is required"),
   category: z.string().min(1, "Category is required"),
   ratings: z.number().min(0).max(5).optional(),
-  
+
   images: z
     .array(z.instanceof(File))
     .nullable()
@@ -57,14 +57,13 @@ type ProductFormValues = z.infer<typeof productSchema>;
 const UpdateForm: React.FC<UpdateFormProps> = ({
   selectedProduct,
   onClose,
-  setSelectedProduct,
-  
+  // setSelectedProduct,
 }) => {
   const [previews, setPreviews] = useState<string[]>(
     Array.isArray(selectedProduct.imageUrl)
       ? selectedProduct.imageUrl
       : selectedProduct.imageUrl
-      ? selectedProduct.imageUrl.split(",")
+      ? [selectedProduct.imageUrl] // Wrap the single string in an array
       : []
   );
   const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
@@ -124,17 +123,13 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     [setValue]
   );
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: "image/jpeg, image/png, image/jpg",
-    maxSize: MAX_IMAGE_SIZE,
-    multiple: true,
-    maxFiles: MAX_IMAGES,
-  });
+ const { getRootProps, getInputProps } = useDropzone({
+   onDrop,
+   accept: ["image/jpeg", "image/png", "image/jpg"],
+   maxSize: MAX_IMAGE_SIZE,
+   multiple: true,
+ });
 
-  const handleRemoveImage = (index: number) => {
-    setPreviews((prev) => prev.filter((_, i) => i !== index));
-  };
 
   const onSubmit = async (data: ProductFormValues) => {
     const formData = new FormData();
@@ -153,11 +148,11 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     if (data.recommended !== undefined) {
       formData.append("recommended", data.recommended.toString());
     }
-   if (watchImages && watchImages.length > 0) {
-     watchImages.forEach((file) => formData.append("images", file));
-   } else if (Array.isArray(imageUrl) && imageUrl.length > 0) {
-     imageUrl.forEach((url) => formData.append("imageUrl", url));
-   }
+    if (watchImages && watchImages.length > 0) {
+      watchImages.forEach((file) => formData.append("images", file));
+    } else if (Array.isArray(imageUrl) && imageUrl.length > 0) {
+      imageUrl.forEach((url) => formData.append("imageUrl", url));
+    }
 
     await updateProduct({ id: _id, formData: formData });
 
@@ -172,7 +167,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
       setPreviews(
         Array.isArray(selectedProduct.imageUrl)
           ? selectedProduct.imageUrl
-          : selectedProduct.imageUrl.split(",")
+          : [selectedProduct.imageUrl] // Wrap the single string in an array
       );
     }
   }, [selectedProduct.imageUrl]);
@@ -254,13 +249,13 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
             )}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           <div>
             <label
               htmlFor="category"
               className="block text-sm font-medium text-gray-700"
             >
-              Category:
+             Select Category:
             </label>
             <div className="flex">
               <select
@@ -278,9 +273,9 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
               <Button
                 type="button"
                 onClick={handleCategoryClick}
-                className="ml-2 text-sm bg-blue-500 text-white py-2 px-4 rounded"
+                variant="outline"
               >
-                Create Category
+               + Add Category
               </Button>
             </div>
             {errors.category && (
@@ -311,7 +306,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
           </label>
           <div
             {...getRootProps()}
-            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-md"
+            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-md cursor-pointer"
           >
             <input {...getInputProps()} />
             <p className="text-center">
@@ -327,13 +322,30 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
                     alt={`Preview ${index}`}
                     className="h-24 w-full object-cover"
                   />
-                  <button
+                  {/* <button
                     type="button"
-                    onClick={() => handleRemoveImage(index)}
+                    onClick={() => {
+                      const newPreviews = previews.filter(
+                        (_, i) => i !== index
+                      );
+                      setPreviews(newPreviews);
+                      const newFiles = newPreviews
+                        .map((_, idx) => watchImages && watchImages[idx])
+                        .filter((_, idx) => idx !== index);
+                      setValue(
+                        "images",
+                        newFiles.length > 0
+                          ? newFiles.filter(
+                              (file): file is File => file !== null
+                            )
+                          : null
+                      );
+                      URL.revokeObjectURL(previews[index]);
+                    }}
                     className="absolute top-1 right-1 text-white bg-red-500 rounded-full p-1"
                   >
                     X
-                  </button>
+                  </button> */}
                 </div>
               ))}
             </div>
@@ -397,3 +409,4 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
 };
 
 export default UpdateForm;
+

@@ -7,7 +7,7 @@ export type Product = {
         _id: string;
         name: string;
     };
-    imageUrl: string[];
+    imageUrl: string | string[]; 
     ratings?: number | 0;
     recommended?: boolean;
     stock?: number | 0;

@@ -58,12 +58,12 @@ import img4 from "../../assets/team4.jpg"
 const TeamMember = () => {
   return (
     <>
-      <div className="py-20">
+      <div className="py-12 mt-16 bg-[#EDF1F0]">
         <SectionHeading
           headingText="Meet Our Team"
-          paragraphText="Meet the team behind Campers Shop"
+          paragraphText="Get to know the passionate team behind Camping Shop!"
         />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pt-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pt-12">
           {teamMembers.map((member, index) => (
             <TeamCard
               key={index}
@@ -73,7 +73,6 @@ const TeamMember = () => {
               socialLinks={member.socialLinks}
             />
           ))}
-         
         </div>
       </div>
     </>

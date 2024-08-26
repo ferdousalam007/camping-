@@ -1,6 +1,7 @@
-import SectionHeading from "@/components/SectionHeading";
+
 import ProductCard from "@/components/productCard/ProductCard";
 import { useGetAllproductQuery } from "@/redux/api/baseApi";
+import LeftTitle from "@/components/LeftTitle";
 
 const FeaturedProducts = () => {
  const { data: productsData, isLoading: isProductsLoading } =
@@ -19,11 +20,8 @@ const FeaturedProducts = () => {
  }
 
   return (
-    <div className="container py-24">
-      <SectionHeading
-        headingText="Featured Products"
-        paragraphText="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium"
-      />
+    <div className="container py-12">
+      <LeftTitle firstTitle="Featured" secondTitle="Products" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {

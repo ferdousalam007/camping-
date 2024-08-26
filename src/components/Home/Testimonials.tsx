@@ -83,9 +83,9 @@ const Testimonials = () => {
         <SectionHeading
           textColor="text-white"
           headingText="Happy Customer"
-          paragraphText="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium"
+          paragraphText="See what our happy campers are saying about their experience with us!"
         />
-        <div>
+        <div className="pt-12">
           <Carousel
             opts={{
               align: "end",

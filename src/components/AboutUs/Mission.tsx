@@ -2,7 +2,7 @@ import aboutImg from "../../assets/aboutUs.jpg"
 
 const Mission = () => {
   return (
-    <div>
+    <div className="container">
       <div className="grid grid-cols-1 md:grid-cols-2">
         <div className="pr-5">
           <div>

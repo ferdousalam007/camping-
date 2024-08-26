@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast, Toaster } from "sonner";
 
 const GetAllProduct = () => {
   const { data: categories, isLoading: isCategoriesLoading } =
@@ -89,13 +90,17 @@ const GetAllProduct = () => {
     refetch();
   };
 
-  const [deleteProduct, { isLoading: isDeleting, isError: isDeleted }] =
-    useDeleteProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
 
-  const handleDeleteProduct = (productId: string) => {
-    deleteProduct(productId).then(() => refetch());
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      await deleteProduct(productId).unwrap(); // Ensure the mutation is unwrapped to handle errors properly
+      refetch();
+      toast.success("Product deleted successfully", { duration: 2000 });
+    } catch (error) {
+      toast.error("Failed to delete product", { duration: 2000 });
+    }
   };
-
   const handleEditClick = (product: any) => {
     setSelectedProduct(product);
     setIsDialogOpen(true);
@@ -117,18 +122,20 @@ const GetAllProduct = () => {
     );
   }
 
-  if (isDeleting) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <h1 className="text-2xl ">Deleting...</h1>
-      </div>
-    );
-  }
+  // if (isDeleting) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen">
+  //       <h1 className="text-2xl ">Deleting...</h1>
+  //     </div>
+  //   );
+  // }
 
   const filteredProducts = newProducts.filter((product) => !product.isDeleted);
 
   return (
     <div>
+      {/* Add Toaster component to render the toast messages */}
+      <Toaster position="top-center" richColors />
       <h1 className="text-3xl font-bold mb-4">Get All Products</h1>
 
       <div className="mb-4">
@@ -237,7 +244,9 @@ const GetAllProduct = () => {
             <Select
               value={limit.toString()}
               onValueChange={(value) => {
+                // Update the limit state directly with the parsed value
                 setLimit(parseInt(value, 10));
+                // Refetch the data after updating the limit
                 refetch();
               }}
             >
@@ -352,3 +361,4 @@ const GetAllProduct = () => {
 };
 
 export default GetAllProduct;
+// product per page 10 not working
