@@ -21,15 +21,21 @@ const ProductManagement = () => {
           <GetAllOrder />
           {/* <GetAllProducts /> */}
 
-          <div >
-            <h1 className="text-2xl md:text-3xl font-medium mb-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-medium mb-8 text-center mt-8">
               First Create Category or Product
             </h1>
             <Tabs className="mx-auto" defaultValue="CreateCategory">
-              <TabsList>
-                <TabsTrigger  value="CreateCategory">CreateCategory</TabsTrigger>
-                <TabsTrigger value="CreateProduct">CreateProduct</TabsTrigger>
-              </TabsList>
+              <div className="flex justify-center ">
+                <TabsList>
+                  <TabsTrigger className="py-4" value="CreateCategory">
+                    CreateCategory
+                  </TabsTrigger>
+                  <TabsTrigger className="py-4" value="CreateProduct">
+                    CreateProduct
+                  </TabsTrigger>
+                </TabsList>
+              </div>
               <TabsContent value="CreateCategory">
                 <CreateCategory />
               </TabsContent>

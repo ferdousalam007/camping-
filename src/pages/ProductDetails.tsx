@@ -148,7 +148,9 @@ const ProductDetails = () => {
                 <div className="flex  mb-4 flex-wrap gap-2">
                   <Button
                     onClick={handleAddToCart}
-                    disabled={stock === 0}
+                    disabled={
+                      stock === 0 || (cartItem && cartItem.quantity >= stock)
+                    }
                     className="px-4 py-2 bg-[#ff8851] text-gray-900 rounded-lg font-bold flex items-center hover:text-[#fff] hover:bg-[#1b352c]"
                   >
                     <ShoppingCart className="mr-2" /> Add to Cart

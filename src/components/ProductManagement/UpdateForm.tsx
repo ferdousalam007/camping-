@@ -11,6 +11,7 @@ import { Product } from "@type/type";
 import CreateCategoryDialog from "./CreateCategoryDialog";
 import { Button } from "@/components/ui/button";
 import { toast, Toaster } from "sonner";
+import { ImagePlus } from "lucide-react";
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -321,8 +322,9 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
             className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-md cursor-pointer"
           >
             <input {...getInputProps()} />
-            <p className="text-center">
-              Drag 'n' drop some files here, or click to select files
+            <p className="text-center flex align-middle justify-center gap-2">
+              <ImagePlus /> Drag & drop some files here, or click to select
+              files
             </p>
           </div>
           {previews.length > 0 && (
@@ -398,13 +400,17 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-              isLoading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
+            className={` inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+              isLoading ? "bg-gray-400" : "bg-[#1b352c] hover:bg-[#ff8851]"
             } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
           >
             {isLoading ? "Updating..." : "Update Product"}
           </button>
-          <Button onClick={onClose} variant="outline">
+          <Button
+            onClick={onClose}
+            className="ml-4 bg-[#ff8851] hover:bg-[#1b352c] focus:ring-[#ff8851] hover:text-white"
+            variant="outline"
+          >
             Close
           </Button>
         </div>

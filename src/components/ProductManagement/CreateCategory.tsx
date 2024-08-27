@@ -43,9 +43,16 @@ const CreateCategory = () => {
       console.error("Failed to create category:", err);
     }
   };
-
+{
+  isSuccess &&
+    toast.success("Category created successfully", { duration: 2000 });
+}
+{
+  isError && toast.error("Failed to create category", { duration: 2000 });
+}
   return (
     <div className=" mx-auto p-6 bg-white rounded-lg shadow-md">
+      <Toaster position="top-center" richColors />
       <h1 className="text-3xl font-bold mb-4 text-center">Create Category</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
@@ -93,17 +100,8 @@ const CreateCategory = () => {
         >
           {isLoading ? "Submitting..." : "Submit"}
         </Button>
-        {isError && (
-          <p className="mt-2 text-sm text-red-600">
-            Error: {error?.data?.message || "Something went wrong"}
-          </p>
-        )}
-        {isSuccess && (
-          <p className="mt-2 text-sm text-green-600">
-            Category created successfully!
-          </p>
-        )}
       </form>
+      
     </div>
   );
 };

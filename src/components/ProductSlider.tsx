@@ -23,39 +23,35 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ imageUrls }) => {
   };
 
   return (
-    <div className="product-slider overflow-hidden">
-      <button onClick={prevSlide} className="slider-button prev">
-        &lt;
-      </button>
-      <div className="slider-image-container">
-        <div className=" mx-auto">
-          <ReactImageMagnify
-            {...{
-              smallImage: {
-                alt: `Product Image ${currentIndex + 1}`,
-                isFluidWidth: true,
-                src: imageUrls[currentIndex],
-               
-              },
-              largeImage: {
-                src: imageUrls[currentIndex],
-                width: 836,
-                height: 1400,
-              },
-              enlargedImagePosition: "over",
-              lensStyle: { backgroundColor: "rgba(0,0,0,.3)" },
-              // enlargedImageContainerDimensions: {
-              //   width: "200%",
-              //   height: "200%",
-              // },
-            }}
-          />
+    <div>
+      <div className="product-slider overflow-hidden max-h-[500px]">
+        <button onClick={prevSlide} className="slider-button prev">
+          &lt;
+        </button>
+        <div className="slider-image-container">
+          <div className=" mx-auto ">
+            <ReactImageMagnify
+              {...{
+                smallImage: {
+                  alt: `Product Image ${currentIndex + 1}`,
+                  isFluidWidth: true,
+                  src: imageUrls[currentIndex],
+                },
+                largeImage: {
+                  src: imageUrls[currentIndex],
+                  width: 836,
+                  height: 1400,
+                },
+                enlargedImagePosition: "over",
+                lensStyle: { backgroundColor: "rgba(0,0,0,.3)" },
+              }}
+            />
+          </div>
         </div>
+        <button onClick={nextSlide} className="slider-button next">
+          &gt;
+        </button>
       </div>
-      <button onClick={nextSlide} className="slider-button next">
-        &gt;
-      </button>
-
       <div className="thumbnail-navigation">
         {imageUrls.map((url, index) => (
           <img

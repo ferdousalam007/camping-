@@ -12,6 +12,7 @@ import { useDropzone } from "react-dropzone";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ImagePlus } from "lucide-react";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -45,7 +46,7 @@ const CreateProduct = () => {
     resolver: zodResolver(productSchema),
   });
 
-  const [createProduct, { isLoading, isError, error, isSuccess }] =
+  const [createProduct, { isLoading, isError , isSuccess }] =
     useCreateProductMutation();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
@@ -106,7 +107,7 @@ const CreateProduct = () => {
        stock: 0,
        description: "",
        category: "",
-       ratings: undefined,
+       ratings: 1,
        featured: false,
        recommended: false,
        images: [],
@@ -116,9 +117,16 @@ const CreateProduct = () => {
      console.error("Failed to create product:", err);
    }
  };
-
+     {
+       isSuccess &&
+         toast.success("Product created successfully", { duration: 2000 });
+     }
+     {
+       isError && toast.error("Failed to create product", { duration: 2000 });
+     }
   return (
     <div>
+      <Toaster position="top-center" richColors />
       <h1 className="text-3xl font-bold mb-4 text-center">Create Product</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,7 +213,7 @@ const CreateProduct = () => {
             <select
               id="category"
               {...register("category")}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
             >
               <option value="" disabled selected>
                 Select a category
@@ -252,12 +260,15 @@ const CreateProduct = () => {
             </label>
             <div
               {...getRootProps()}
-              className={`mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer ${
+              className={`mt-1 block w-full py-4 px-3 border-2 border-dashed border-gray-300 rounded-md cursor-pointer ${
                 isDragActive ? "bg-gray-100" : ""
               }`}
             >
               <input {...getInputProps()} />
-              <p>Drag & drop some files here, or click to select files</p>
+              <p className="text-center flex align-middle justify-center gap-2">
+                <ImagePlus /> Drag & drop some files here, or click to select
+                files
+              </p>
             </div>
             {errors.images && (
               <p className="mt-2 text-red-600">{errors.images.message}</p>
@@ -319,14 +330,6 @@ const CreateProduct = () => {
             ? "Submitting..."
             : "Create Product"}
         </Button>
-        {isSuccess && (
-          <p className="mt-4 text-green-600">Product created successfully</p>
-        )}
-        {isError && (
-          <p className="mt-4 text-red-600">
-            {(error as any)?.data?.message || "An error occurred"}
-          </p>
-        )}
       </form>
     </div>
   );
