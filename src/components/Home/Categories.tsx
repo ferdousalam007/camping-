@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SectionHeading from "@/components/SectionHeading";
+
 import { Card, CardContent } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
 import {
@@ -20,25 +20,38 @@ import {
 import CategoryModal from "@/components/CategoryModal";
 import ProductCard from "@/components/productCard/ProductCard";
 import LeftTitle from "@/components/LeftTitle";
-
+import { Category, Product } from "@/type/type";
+interface ProductCat {
+  _id: string;
+  imageUrl: string[];
+  name: string;
+  description: string;
+  ratings: number;
+  stock: number;
+  price: number;
+  totalSold: number;
+}
 const Categories = () => {
   const { data: productsData, isLoading: isProductsLoading } =
     useGetAllproductQuery("");
   const { data: categoriesData, isLoading } = useGetCategoriesQuery("");
 
   // State for modal visibility and selected category
-  const [selectedCategory, setSelectedCategory] = useState(null);
+ const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+   null
+ );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filter out deleted products
-  const validProducts = productsData?.data?.result?.filter(
-    (product) => !product.isDeleted
-  );
+ const validProducts = productsData?.data?.result?.filter(
+   (product: Product) => !product.isDeleted
+ );
 
   // Map categories to their respective product counts
-  const categoriesWithProductCounts = categoriesData?.data.map((category) => {
+  const categoriesWithProductCounts = categoriesData?.data.map((category: Category) => {
     const productCount = validProducts?.filter(
-      (product) => product.category._id === category._id
+      (product: Product) =>
+        product.category && product.category._id === category._id
     ).length;
     return {
       ...category,
@@ -47,7 +60,7 @@ const Categories = () => {
   });
 
   // Open modal with selected category
-  const handleDetailsClick = (category) => {
+  const handleDetailsClick = (category: Category) => {
     setSelectedCategory(category);
     setIsModalOpen(true);
   };
@@ -60,13 +73,18 @@ const Categories = () => {
 
   // Filter products based on selected category
   const productsInCategory = validProducts?.filter(
-    (product) => product.category._id === selectedCategory?._id
+    (product: Product) => product.category?._id === selectedCategory?._id
   );
 
   const plugin = React.useRef(
     Autoplay({ delay: 40000000, stopOnInteraction: true })
   );
-
+if (isLoading) {
+    return <div className="text-center text-2xl">Loading categories...</div>;
+}
+if (isProductsLoading) {
+  return <div className="text-center text-2xl">Loading products...</div>;
+}
   return (
     <div className="bg-[#EDF1F0]">
       <div className="container pt-12 pb-28">
@@ -81,7 +99,7 @@ const Categories = () => {
             className=""
           >
             <CarouselContent>
-              {categoriesWithProductCounts?.map((category, index) => (
+              {categoriesWithProductCounts?.map((category: Category) => (
                 <CarouselItem
                   key={category._id}
                   className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
@@ -102,7 +120,7 @@ const Categories = () => {
                           {category.name}
                         </h3>
                         <div className="mt-2 text-center">
-                          Total Products: {category.productCount}
+                          Total Products: {category?.productCount}
                         </div>
 
                         <CardFooter className="flex justify-center p-4">
@@ -128,17 +146,17 @@ const Categories = () => {
         {isModalOpen && (
           <CategoryModal onClose={handleCloseModal}>
             <h2 className="text-2xl mb-4">
-              Category: {selectedCategory?.name}{" "}
+              Category: {selectedCategory?.name}
             </h2>
             {productsInCategory?.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                {productsInCategory.map((product) => (
+                {productsInCategory.map((product: ProductCat) => (
                   <ProductCard
                     key={product?._id}
                     image={`${product?.imageUrl[0]}`}
                     title={`${product?.name}`}
                     description={`${product?.description}`}
-                    rating={parseFloat(product?.ratings)}
+                    rating={product?.ratings}
                     stock={product?.stock}
                     id={product?._id}
                     recommended

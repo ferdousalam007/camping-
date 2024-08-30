@@ -13,7 +13,9 @@ const categorySchema = z.object({
     message: "Image is required",
   }),
 });
-
+interface ErrorData {
+  message: string;
+}
 type CategoryFormValues = z.infer<typeof categorySchema>;
 type UpdateCreateCategoryFormProps = {
   onCloseCategory: () => void;
@@ -102,7 +104,10 @@ const UpdateCreateCategoryForm: React.FC<UpdateCreateCategoryFormProps> = ({
         </Button>
         {isError && (
           <p className="mt-2 text-red-600">
-            Error: {error.data?.message || "Something went wrong"}
+            Error:{" "}
+            {typeof error === "string"
+              ? error
+              : (error as ErrorData)?.message || "Something went wrong"}
           </p>
         )}
         {isSuccess && (

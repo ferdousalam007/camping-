@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ProductQueryParams, ProductsResponse } from "@type/type";
-import { TagDescription } from "@reduxjs/toolkit/query/react";
+import { ProductQueryParams, ProductsResponse } from "@/type/type";
+// import { TagDescription } from "@reduxjs/toolkit/query/react";
 
 export const baseApi = createApi({
     reducerPath: 'productApi',
@@ -120,7 +120,15 @@ export const baseApi = createApi({
                 url: `/products/${id}`,
                 method: "GET",
             }),
-            providesTags: (result, error, id) => [{ type: 'Product', id }],
+            // providesTags: (result, error, id) => [{ type: 'Product', id }],
+            // providesTags: (result, error, id) => [{ type: 'Product', id }],
+            providesTags: (result) => {
+                if (result && Array.isArray(result.products) && result.products.length > 0) {
+                    return [{ type: 'Product', id: result.products[0].id }];
+                }
+                return ['Product'];
+            }
+            
         })
     }),
 });

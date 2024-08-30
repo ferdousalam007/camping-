@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Product } from "@type/type";
+import { Product } from "@/type/type";
 import UpdateForm from "./UpdateForm";
 type UpdateProductProps = {
   isOpen: boolean;

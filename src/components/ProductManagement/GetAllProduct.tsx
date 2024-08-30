@@ -14,11 +14,11 @@ import {
   useGetAllProductsQuery,
   useGetCategoriesQuery,
 } from "@/redux/api/baseApi";
-import { Product, TApiResponse } from "@type/type";
+import {  TApiResponse } from "@/type/type";
 import { FilePenLine, Trash2 } from "lucide-react";
 import { useState } from "react";
 import UpdateProductDialog from "./UpdateProductDialog";
-import CreateCategoryDialog from "./CreateCategoryDialog";
+// import CreateCategoryDialog from "./CreateCategoryDialog";
 import {
   Pagination,
   PaginationContent,
@@ -71,15 +71,15 @@ const GetAllProduct = () => {
   const apiLimit = (products as any)?.data?.limit;
   const apiTotal = (products as any)?.data?.total;
   const newResult: TApiResponse = (products as any)?.data || [];
-  const newProducts: Product[] = newResult?.result || [];
+  const newProducts = newResult?.result || [];
   const totalPages = Math.ceil(apiTotal / apiLimit);
-
+console.log(newProducts)
   const handleClear = () => {
     setSearch("");
     setCategory("");
     setMinPrice(undefined);
     setMaxPrice(undefined);
-    setSort("");
+    setSort(undefined);
     setPage(1);
     setLimit(10);
     refetch();
@@ -98,7 +98,8 @@ const GetAllProduct = () => {
       refetch();
       toast.success("Product deleted successfully", { duration: 2000 });
     } catch (error) {
-      toast.error("Failed to delete product", { duration: 2000 });
+      isError &&
+        toast.error((error as any)?.data?.message || "An error occurred");
     }
   };
   const handleEditClick = (product: any) => {
@@ -113,14 +114,18 @@ const GetAllProduct = () => {
       </div>
     );
   }
-
-  if (products?.result?.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        no products found
-      </div>
-    );
-  }
+if (isCategoriesLoading) {
+  return (
+    <div className="flex justify-center items-center h-screen">loading...</div>
+  );
+}
+   if (newProducts?.length === 0) {
+     return (
+       <div className="flex justify-center items-center h-screen">
+         no products found
+       </div>
+     );
+   }
 
   // if (isDeleting) {
   //   return (
@@ -293,7 +298,7 @@ const GetAllProduct = () => {
                 <img
                   src={product?.imageUrl[0]}
                   alt={product?.name}
-                  className="w-full h-[80px] object-cover"
+                  className="w-[80px] h-[80px] object-cover rounded"
                 />
               </TableCell>
               <TableCell>{product?.name}</TableCell>

@@ -54,6 +54,7 @@ export type Category ={
     name: string;
     imageUrl: string;
     __v?: number;
+    productCount?: number;
 }
 
 // Define the type for the product object
@@ -91,9 +92,20 @@ export type TApiResponse = {
     minPriceProduct: number;
     maxPriceProduct: number;
     data?: Product[];
-    isLoading?: boolean; // Add isLoading property
-    isError?: boolean; // Add isError property
+    isLoading?: boolean; 
+    isError?: boolean; 
 };
+// export type TApiResponse = {
+//     result: Products[];
+//     total: number;
+//     page: number;
+//     limit: number;
+//     minPriceProduct: number;
+//     maxPriceProduct: number;
+//     data?: Product[];
+//     isLoading?: boolean; 
+//     isError?: boolean; 
+// };
 // src/type/type.ts
 export type UseQueryHookResult<T> = {
     data: T | undefined;

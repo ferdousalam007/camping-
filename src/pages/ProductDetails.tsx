@@ -10,7 +10,7 @@ import {
   addToWishList,
   removeFromWishList,
 } from "@/redux/slice/cartSlice";
-import { RootState } from "@redux/store";
+import { RootState } from "@/redux/store";
 import ProductSlider from "@/components/ProductSlider";
 import PageTitle from "@/components/PageTitle";
 

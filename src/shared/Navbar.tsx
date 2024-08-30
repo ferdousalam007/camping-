@@ -6,12 +6,13 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import WishListDropdown from "@/components/WishList/WishListDropdown";
-import { RootState } from "@redux/store";
-import { Heart, ShoppingCart, Tent } from "lucide-react";
+import { RootState } from "@/redux/store";
+import { ShoppingCart, Tent } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import MobileNavbar from "./MobileNavbar";
+
 const Navbar = () => {
   const cart = useSelector((state: RootState) => state.cart);
   const wishList = useSelector((state: RootState) => state.cart.wishList);
@@ -29,6 +30,19 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (cart.items.length > 0 || wishList.length > 0) {
+        event.preventDefault();
+        event.returnValue = ""; // This is required to show the confirmation dialog in some browsers
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [cart.items.length, wishList.length]);
+
   return (
     <div
       className={`mx-auto bg-[#1b352c] w-full shrink-0 transition-all duration-500 ease-in-out border-b border-gray-100  ${
@@ -79,7 +93,8 @@ const Navbar = () => {
                     {cart.items.length > 0 && (
                       <span className="ml-1 absolute right-[-10px] top-[-10px] bg-blue-600 text-white px-1 rounded px-2">
                         {cart.items.reduce(
-                          (total, item) => total + item.quantity,
+                          (total: number, item: (typeof cart.items)[number]) =>
+                            total + item.quantity,
                           0
                         )}
                       </span>
@@ -95,7 +110,7 @@ const Navbar = () => {
               </NavigationMenuItem>
             </div>
           </NavigationMenuList>
-          <MobileNavbar clssasName="cursor-pointer" cart={cart} wishList={wishList} />
+          <MobileNavbar />
         </NavigationMenu>
       </div>
     </div>

@@ -13,6 +13,7 @@ import { useDropzone } from "react-dropzone";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ImagePlus } from "lucide-react";
+import { Textarea } from "../ui/textarea";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -154,11 +155,16 @@ const CreateProduct = () => {
             >
               Description:
             </label>
-            <Input
+            {/* <Input
               as="textarea"
               id="description"
               {...register("description")}
               className="mt-1"
+            /> */}
+            <Textarea
+              id="description"
+              {...register("description")}
+              className="mt-1 "
             />
             {errors.description && (
               <p className="mt-2 text-red-600">{errors.description.message}</p>

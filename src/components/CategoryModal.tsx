@@ -18,9 +18,6 @@ const CategoryModal: FC<CategoryModalProps> = ({ onClose, children }) => {
     >
       <div className="bg-white p-8 rounded-lg max-w-lg w-full">
         {children}
-        <button onClick={onClose} className="mt-4 text-red-500">
-          Close
-        </button>
       </div>
     </div>
   );

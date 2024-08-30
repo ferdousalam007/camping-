@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useGetAllproductQuery } from "@/redux/api/baseApi";
 import {
+  clearCart,
   decreaseQuantity,
   increaseQuantity,
   removeFromCart,
 } from "@/redux/slice/cartSlice";
 import { Button } from "@/components/ui/button";
-import { RootState } from "@redux/store";
+import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -21,8 +22,11 @@ import {
 } from "@/components/ui/table";
 
 import PageTitle from "@/components/PageTitle";
+import { useState } from "react";
+import { toast } from "sonner";
 const breadcrumbs = [{ label: "Home", href: "/" }, { label: `Cart` }];
 const Cart = () => {
+  const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart);
 
@@ -30,21 +34,25 @@ const Cart = () => {
 
   const products = data?.data.result;
 
-  
-
   const handleRemove = (id: string) => {
     dispatch(removeFromCart(id));
+    toast.success("Item removed from cart", { duration: 2000 });
   };
 
   const handleIncrease = (id: string) => {
     dispatch(increaseQuantity(id));
+    toast.success("Quantity increased", { duration: 2000 });
+
   };
 
   const handleDecrease = (id: string) => {
     dispatch(decreaseQuantity(id));
+    toast.success("Quantity decreased", { duration: 2000 });
   };
-
-  const totalPrice = cartItems.items?.reduce((total, item) => {
+  const handleClearCart = () => {
+    setShowModal(true);
+  };
+  const totalPrice = cartItems.items?.reduce((total:any, item: any) => {
     const product = products.find((p: any) => p._id === item.id);
     return total + (product ? product.price * item.quantity : 0);
   }, 0);
@@ -54,7 +62,7 @@ const Cart = () => {
   return (
     <div className="">
       <PageTitle title="Cart" breadcrumbs={breadcrumbs} />
-   
+
       <div className="container py-8">
         {cartItems.items?.length > 0 ? (
           <>
@@ -80,7 +88,7 @@ const Cart = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {cartItems.items?.map((item) => {
+                {cartItems.items?.map((item:any) => {
                   const product = products.find((p: any) => p._id === item.id);
 
                   if (!product) return "No product found";
@@ -142,6 +150,12 @@ const Cart = () => {
                     $ {totalPrice?.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right ">
+                    <Button
+                      className="bg-red-500 text-white hover:bg-red-700 mr-2"
+                      onClick={handleClearCart}
+                    >
+                      Clear All Cart Items
+                    </Button>
                     <Link to="/checkout">
                       <Button className="bg-[#ff8851] text-white hover:bg-[#1b352c]">
                         Place Order
@@ -163,6 +177,33 @@ const Cart = () => {
           </div>
         )}
       </div>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-bold mb-4">
+              Are you sure you want to clear your cart?
+            </h2>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  dispatch(clearCart());
+                  setShowModal(false);
+                  toast.success("Cart cleared!", { duration: 2000 });
+                }}
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Clear Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

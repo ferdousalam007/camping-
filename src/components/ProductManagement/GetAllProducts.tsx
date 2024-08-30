@@ -13,7 +13,7 @@ import {
   useDeleteProductMutation,
   useGetProductsQuery,
 } from "@/redux/api/baseApi";
-import { Product } from "@type/type";
+import { Product } from "@/type/type";
 import { FilePenLine, Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -21,15 +21,16 @@ import UpdateProductDialog from "./UpdateProductDialog";
 
 const GetAllProducts = () => {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [limit] = useState(10);
    const [selectedProduct, setSelectedProduct] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [deleteProduct, { isLoading: isDeleting, isError: isDeleted }] =
+  const [deleteProduct, { isLoading: isDeleting }] =
     useDeleteProductMutation();
   const {
     data: products,
     isLoading,
-    refetch,
+  
   } = useGetProductsQuery({
     page,
     limit,

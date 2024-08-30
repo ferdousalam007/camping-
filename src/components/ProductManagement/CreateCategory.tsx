@@ -26,7 +26,7 @@ const CreateCategory = () => {
     resolver: zodResolver(categorySchema),
   });
 
-  const [createCategory, { isLoading, isError, error, isSuccess }] =
+  const [createCategory, { isLoading, isError,  isSuccess }] =
     useCreateCategoryMutation();
 
   const onSubmit = async (data: CategoryFormValues) => {

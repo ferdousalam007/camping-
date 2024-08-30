@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   DrawerClose,
-  DrawerContent,
+ 
   DrawerFooter,
-  DrawerTitle,
-  DrawerTrigger,
+
 } from "@/components/ui/drawer";
+import { Toaster, toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -22,6 +22,7 @@ import { Drawer } from "vaul";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetAllproductQuery } from "@/redux/api/baseApi";
 import {
+
   closeModal,
   removeFromWishList,
   transferToCart,
@@ -59,24 +60,72 @@ const WishListDropdown = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customModalMessage, setCustomModalMessage] = useState("");
 
-  const handleTransferToCart = (itemId: string) => {
-    const product = products.find((p: any) => p._id === itemId);
+  // const handleTransferToCart = (itemId: string) => {
+  //   const product = products.find((p: any) => p._id === itemId);
 
-    if (product) {
-      if (product.stock === 0) {
-        setCustomModalMessage("This product is out of stock.");
-        setIsModalOpen(true);
-        return;
-      }
-      dispatch(transferToCart(itemId));
-    } else {
-      setCustomModalMessage("Product not found.");
+  //   if (product) {
+  //     if (product.stock === 0) {
+  //       setCustomModalMessage("This product is out of stock.");
+  //       setIsModalOpen(true);
+  //       return;
+  //     }
+  //     dispatch(transferToCart(itemId));
+  //   } else {
+  //     setCustomModalMessage("Product not found.");
+  //     setIsModalOpen(true);
+  //   }
+  // };
+
+// const handleTransferToCart = (itemId: string) => {
+//   const product = products.find((p: any) => p._id === itemId);
+
+//   if (product) {
+//     if (product.stock === 0) {
+//       setCustomModalMessage("This product is out of stock.");
+//       setIsModalOpen(true);
+//       return;
+//     }
+
+//     const cartItem = wishlistItems.find((item: any) => item.id === itemId);
+//     if (cartItem) {
+//       setCustomModalMessage(
+//         "This product is already in your cart. Please adjust the quantity in the cart."
+//       );
+//       setIsModalOpen(true);
+//       return;
+//     }
+
+//     dispatch(transferToCart(itemId));
+
+   
+    
+//   } else {
+//     setCustomModalMessage("Product not found.");
+//     setIsModalOpen(true);
+//   }
+// };
+
+const handleTransferToCart = (itemId: string) => {
+  const product = products.find((p: any) => p._id === itemId);
+
+  if (product) {
+    if (product.stock === 0) {
+      setCustomModalMessage("This product is out of stock.");
       setIsModalOpen(true);
+      return;
     }
-  };
+
+    dispatch(transferToCart(itemId));
+ // Display success toast
+  } else {
+    setCustomModalMessage("Product not found.");
+    setIsModalOpen(true);
+  }
+};
 
   const handleRemoveFromWishList = (itemId: string) => {
     dispatch(removeFromWishList(itemId));
+    toast.success("Item removed from wishlist!", { duration: 2000 });
   };
 
   const handleCloseModal = () => {
@@ -85,8 +134,12 @@ const WishListDropdown = () => {
     dispatch(closeModal());
   };
 
+
+
+
   return (
     <div>
+      <Toaster position="top-center" richColors />
       <Drawer.Root direction="right">
         <Drawer.Trigger asChild>
           <Heart className="cursor-pointer w-5 text-white " />
@@ -163,6 +216,7 @@ const WishListDropdown = () => {
                 <p className="text-zinc-600 mb-8 mt-8">
                   <DrawerFooter>
                     <DrawerClose>
+                     
                       <Button
                         className="w-full bg-[#ff8851] text-gray-900"
                         variant="outline"

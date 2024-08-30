@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
+import {  toast } from "sonner";
 export type CartItem = {
     id: string;
     quantity: number;
@@ -57,6 +57,8 @@ const cartSlice = createSlice({
         },
         removeFromWishList(state, action: PayloadAction<string>) {
             state.wishList = state.wishList.filter((item) => item.id !== action.payload);
+            toast.success("Item removed from wishlist!", { duration: 2000 });
+            
         },
         increaseWishListQuantity(state, action: PayloadAction<string>) {
             const item = state.wishList.find((item) => item.id === action.payload);
@@ -82,6 +84,7 @@ const cartSlice = createSlice({
                 } else {
                     state.wishList.splice(itemIndex, 1); // Remove from wishlist
                     state.items.push(item); // Add to cart
+                    toast.success("Item added to cart!", { duration: 2000 });
                 }
             }
         },
@@ -91,20 +94,7 @@ const cartSlice = createSlice({
         clearCart(state) {
             state.items = [];
         }
-        // transferToCart: (state, action: PayloadAction<string>) => {
-        //     const itemIndex = state.wishList.findIndex(item => item.id === action.payload);
-
-        //     if (itemIndex > -1) {
-        //         const [item] = state.wishList.splice(itemIndex, 1); // Remove from wishlist
-        //         const cartItem = state.items.find(cartItem => cartItem.id === item.id);
-
-        //         if (cartItem) {
-        //             cartItem.quantity += item.quantity; // Increase quantity if item already exists in cart
-        //         } else {
-        //             state.items.push(item); // Add to cart if item does not exist
-        //         }
-        //     }
-        // },
+       
 
     },
 });

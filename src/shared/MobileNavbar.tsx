@@ -12,27 +12,13 @@ import { NavigationMenuLink } from "@/components/ui/navigation-menu";
 import { AlignJustify, ShoppingCart, Tent } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import WishListDropdown from "@/components/WishList/WishListDropdown";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
-interface CartItem {
-  id: number;
-  name: string;
-  quantity: number;
-}
 
-interface CartState {
-  items: CartItem[];
-}
-
-interface WishListItem {
-  id: number;
-  name: string;
-}
-interface MobileNavbarProps {
-  cart: CartState;
-  wishList: WishListItem[];
-}
-
-const MobileNavbar = ({ cart, wishList }: MobileNavbarProps) => {
+const MobileNavbar = () => {
+    const cart = useSelector((state: RootState) => state.cart);
+    const wishList = useSelector((state: RootState) => state.cart.wishList);
   const location = useLocation();
   return (
     <Sheet>
@@ -97,7 +83,7 @@ const MobileNavbar = ({ cart, wishList }: MobileNavbarProps) => {
               <ShoppingCart className="cursor-pointer w-5 text-white " />
               {cart.items.length > 0 && (
                 <span className="ml-1 absolute right-[-10px] top-[-10px] bg-blue-600 text-white px-1 rounded px-2">
-                  {cart.items.reduce((total, item) => total + item.quantity, 0)}
+                  {cart.items.reduce((total: number, item: (typeof cart.items)[number]) => total + item.quantity, 0)}
                 </span>
               )}
             </NavigationMenuLink>

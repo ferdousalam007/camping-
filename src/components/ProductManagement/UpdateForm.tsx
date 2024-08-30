@@ -7,12 +7,11 @@ import {
   useUpdateSingleProductMutation,
   useGetCategoriesQuery,
 } from "@/redux/api/baseApi";
-import { Product } from "@type/type";
+import { Product } from "@/type/type";
 import CreateCategoryDialog from "./CreateCategoryDialog";
 import { Button } from "@/components/ui/button";
 import { toast, Toaster } from "sonner";
 import { ImagePlus } from "lucide-react";
-
 const MAX_IMAGES = 5;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -47,12 +46,15 @@ const productSchema = z.object({
   featured: z.boolean().optional(),
   recommended: z.boolean().optional(),
 });
+interface ErrorData {
+  message: string;
+}
 
 type UpdateFormProps = {
   selectedProduct: Product;
   onClose: () => void;
  
-  setSelectedProduct: (product: Product) => void;
+ 
 };
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -60,7 +62,7 @@ type ProductFormValues = z.infer<typeof productSchema>;
 const UpdateForm: React.FC<UpdateFormProps> = ({
   selectedProduct,
   onClose,
-  // setSelectedProduct,
+  
 }) => {
    
   const [previews, setPreviews] = useState<string[]>(
@@ -118,21 +120,44 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     useGetCategoriesQuery("");
   const watchImages = watch("images");
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const files = acceptedFiles.slice(0, MAX_IMAGES);
-      setPreviews(files.map((file) => URL.createObjectURL(file)));
-      setValue("images", files as any); // Update the form's image field
-    },
-    [setValue]
-  );
+  // const onDrop = useCallback(
+  //   (acceptedFiles: File[]) => {
+  //     const files = acceptedFiles.slice(0, MAX_IMAGES);
+  //     setPreviews(files.map((file) => URL.createObjectURL(file)));
+  //     setValue("images", files as any); // Update the form's image field
+  //   },
+  //   [setValue]
+  // );
+ const onDrop = useCallback(
+   (acceptedFiles: File[]) => {
+     const currentImages = watch("images") || [];
+     const newImages = [...currentImages, ...acceptedFiles].slice(0, 5); // Limit to 5 images
+     setValue("images", newImages);
+     setPreviews(newImages.map((file) => URL.createObjectURL(file)));
+   },
+   [setValue, watch]
+ );
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: ["image/jpeg", "image/png", "image/jpg"],
-    maxSize: MAX_IMAGE_SIZE,
-    multiple: true,
-  });
+  // const { getRootProps, getInputProps } = useDropzone({
+  //   onDrop,
+  //   accept: ["image/jpeg", "image/png", "image/jpg"],
+  //   maxSize: MAX_IMAGE_SIZE,
+  //   multiple: true,
+  // });
+
+ const { getRootProps, getInputProps } = useDropzone({
+   onDrop,
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   accept: "image/*" as any,
+   multiple: true,
+   maxSize: 5 * 1024 * 1024, // 5MB
+ });
+if (isError) {
+ toast.error(
+  (error as ErrorData).message || "Something went wrong. Please try again.", { duration: 2000 }
+ );
+ 
+}
 
   const onSubmit = async (data: ProductFormValues) => {
     const formData = new FormData();
@@ -277,7 +302,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option value="">Select a category</option>
-                {categories?.data?.map((cat) => (
+                {categories?.data?.map((cat:any) => (
                   <option key={cat._id} value={cat._id}>
                     {cat.name}
                   </option>

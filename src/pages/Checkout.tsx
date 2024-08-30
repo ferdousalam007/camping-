@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { RootState } from "@/redux/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {  toast } from "sonner";
 import {
   decreaseQuantity,
   removeFromCart,
@@ -17,7 +18,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Product } from "@type/type";
+import { Product } from "@/type/type";
 import {
   Table,
   TableBody,
@@ -41,13 +42,14 @@ const userDetailsSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   phone: z
     .string()
-    .regex(/^[0-9]{10}$/, { message: "Phone number must be 10 digits" }),
+    .regex(/^[0-9]{11}$/, { message: "Phone number must be 11 digits" }),
   address: z.string().min(1, { message: "Address is required" }),
 });
 
 type UserDetails = z.infer<typeof userDetailsSchema>;
 
 const Checkout = () => {
+    const [showModal, setShowModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = React.useState("cash");
   const [createOrder, { isLoading }] = useCreateOrderMutation();
   const dispatch = useDispatch();
@@ -90,7 +92,7 @@ const Checkout = () => {
           navigate("/success", {
             state: { ...orderDetails, userDetails: data },
           });
-
+          toast.success("Order placed successfully", { duration: 2000 });
           dispatch(clearCart());
         });
       } catch (error) {
@@ -103,27 +105,32 @@ const Checkout = () => {
 
   const handleRemove = (id: string) => {
     dispatch(removeFromCart(id));
+    toast.success("Item removed from cart", { duration: 2000 });
   };
 
   const handleIncrease = (id: string) => {
     dispatch(increaseQuantity(id));
+    toast.success("Quantity increased", { duration: 2000 });
   };
 
   const handleDecrease = (id: string) => {
     dispatch(decreaseQuantity(id));
+    toast.success("Quantity decreased", { duration: 2000 });
   };
 
   const totalPrice = cartItems.reduce((total, item) => {
     const product = products?.find((p: Product) => p._id === item.id);
     return total + (product ? product.price * item.quantity : 0);
   }, 0);
-
+ const handleClearCart = () => {
+   setShowModal(true);
+ };
   return (
     <div>
       <PageTitle title="Checkout" breadcrumbs={breadcrumbs} />
       <div className="container py-12">
         {cartItems.length === 0 ? (
-            <div className="text-center py-44">
+          <div className="text-center py-44">
             <h1 className="text-3xl font-bold mb-4">Cart is empty</h1>
             <Link to="/products">
               <Button className="bg-[#ff8851] text-white hover:bg-[#1b352c]">
@@ -306,12 +313,45 @@ const Checkout = () => {
                       ${totalPrice.toFixed(2)}
                     </TableCell>
                   </TableRow>
+                  <Button
+                    className="bg-red-500 text-white hover:bg-red-700  mx-auto"
+                    onClick={handleClearCart}
+                  >
+                    Clear All Cart Items
+                  </Button>
                 </TableFooter>
               </Table>
             </div>
           </>
         )}
       </div>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-bold mb-4">
+              Are you sure you want to clear your cart?
+            </h2>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  dispatch(clearCart());
+                  setShowModal(false);
+                  toast.success("Cart cleared!", { duration: 2000 });
+                }}
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Clear Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
