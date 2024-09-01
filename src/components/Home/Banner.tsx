@@ -1,8 +1,11 @@
 
-
+import bannerImg from "../../assets/bg.png"
 const Banner = () => {
   return (
-    <div className="bg-custom-bg  bg-cover bg-no-repeat min-h-[800px] w-full flex items-center justify-center">
+    <div
+      className="bg-custom-bg  bg-cover bg-no-repeat min-h-[800px] w-full flex items-center justify-center"
+      style={{ backgroundImage: bannerImg }}
+    >
       <div className="container">
         <div className="w-full md:w-3/4 lg:w-1/2 items-center py-[180px] ">
           <div className="relative">
