@@ -1,5 +1,5 @@
 
-import bannerImg from "../../assets/bg.png"
+import bannerImg from "../../assets/banner.webp";
 const Banner = () => {
   return (
     <div
