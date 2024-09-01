@@ -29,7 +29,7 @@ const FeaturedProducts = () => {
           featuredProducts?.map((product: any) => (
             <ProductCard
               key={product?._id}
-              image={`${product?.imageUrl[0]}`}
+              image={product?.imageUrl ? `${product.imageUrl[0]}` : ""}
               title={`${product?.name}`}
               description={`${product?.description}`}
               rating={parseFloat(product?.ratings)}

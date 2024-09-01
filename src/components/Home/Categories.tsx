@@ -150,10 +150,10 @@ if (isProductsLoading) {
             </h2>
             {productsInCategory?.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                {productsInCategory.map((product: ProductCat) => (
+                {productsInCategory?.map((product: ProductCat) => (
                   <ProductCard
                     key={product?._id}
-                    image={`${product?.imageUrl[0]}`}
+                    image={product?.imageUrl ? `${product.imageUrl[0]}` : ""}
                     title={`${product?.name}`}
                     description={`${product?.description}`}
                     rating={product?.ratings}

@@ -8,7 +8,7 @@ const Banner = () => {
           <div className="relative">
             <div className="space-y-4 text-white px-3">
               <h3 className="text-2xl font-bold leading-none text-[#ff8851] bg-slate-50 rounded inline-block p-2">
-                Camping Shop
+                Camping ShopCamping Shop
               </h3>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-normal md:leading-normal lg:leading-normal ">
                 Camping, Healty Trip For Every Day Life

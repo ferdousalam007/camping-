@@ -73,7 +73,7 @@ const GetAllProduct = () => {
   const newResult: TApiResponse = (products as any)?.data || [];
   const newProducts = newResult?.result || [];
   const totalPages = Math.ceil(apiTotal / apiLimit);
-console.log(newProducts)
+
   const handleClear = () => {
     setSearch("");
     setCategory("");
@@ -119,13 +119,7 @@ if (isCategoriesLoading) {
     <div className="flex justify-center items-center h-screen">loading...</div>
   );
 }
-   if (newProducts?.length === 0) {
-     return (
-       <div className="flex justify-center items-center h-screen">
-         no products found
-       </div>
-     );
-   }
+ 
 
   // if (isDeleting) {
   //   return (
@@ -198,6 +192,7 @@ if (isCategoriesLoading) {
               placeholder="Min Price"
               value={minPrice ?? ""}
               onChange={(e) => setMinPrice(Number(e.target.value))}
+              min={0}
             />
           </div>
           <div className="flex-1 m-2">
@@ -210,6 +205,7 @@ if (isCategoriesLoading) {
               placeholder="Max Price"
               value={maxPrice ?? ""}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
+              min={0}
             />
           </div>
           <div className="flex-1 m-2">
@@ -291,12 +287,24 @@ if (isCategoriesLoading) {
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
+        {newProducts?.length === 0 && (
+          <TableBody>
+            <TableRow>
+              <TableCell
+                className="text-center text-xl text-red-600"
+                colSpan={5}
+              >
+                No products found.
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        )}
         <TableBody>
           {filteredProducts?.map((product) => (
             <TableRow key={product._id}>
               <TableCell className="font-medium">
                 <img
-                  src={product?.imageUrl[0]}
+                  src={product?.imageUrl ? `${product.imageUrl[0]}` : ""}
                   alt={product?.name}
                   className="w-[80px] h-[80px] object-cover rounded"
                 />

@@ -35,10 +35,22 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ imageUrls }) => {
                 smallImage: {
                   alt: `Product Image ${currentIndex + 1}`,
                   isFluidWidth: true,
-                  src: imageUrls[currentIndex],
+                  // ... existing code ...
+
+                  src:
+                    imageUrls && imageUrls.length > 0
+                      ? imageUrls[currentIndex]
+                      : "",
+                  // ... existing code ...
                 },
                 largeImage: {
-                  src: imageUrls[currentIndex],
+                  // ... existing code ...
+
+                  src:
+                    imageUrls && imageUrls.length > 0
+                      ? imageUrls[currentIndex]
+                      : "",
+                  // ... existing code ...
                   width: 836,
                   height: 1400,
                 },
@@ -53,7 +65,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ imageUrls }) => {
         </button>
       </div>
       <div className="thumbnail-navigation">
-        {imageUrls.map((url, index) => (
+        {imageUrls?.map((url, index) => (
           <img
             key={index}
             src={url}

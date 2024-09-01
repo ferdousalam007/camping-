@@ -53,10 +53,10 @@ const GetAllOrder = () => {
   );
 
   // Calculate total pages for filtered data
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredData?.length / itemsPerPage);
 
   // Get current items based on current page
-  const currentItems = filteredData.slice(
+  const currentItems = filteredData?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -102,7 +102,7 @@ const GetAllOrder = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentItems.map((order: any) => (
+          {currentItems?.map((order: any) => (
             <TableRow key={order._id}>
               <TableCell>{order.name}</TableCell>
               <TableCell>{order.email}</TableCell>

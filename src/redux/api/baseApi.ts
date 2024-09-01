@@ -2,13 +2,15 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ProductQueryParams, ProductsResponse } from "@/type/type";
 // import { TagDescription } from "@reduxjs/toolkit/query/react";
 
+const backendURL = import.meta.env.VITE_BACKEND_URL
 export const baseApi = createApi({
     reducerPath: 'productApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:5000/api',
+        baseUrl: backendURL,
         credentials: 'include'
     }),
     tagTypes: ['Product', 'Category', 'Order'],
+
     endpoints: (builder) => ({
         createProduct: builder.mutation({
             query: (product) => ({
