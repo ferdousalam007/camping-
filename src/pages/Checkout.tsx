@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { RootState } from "@/redux/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {  toast } from "sonner";
+import { toast } from "sonner";
 import {
   decreaseQuantity,
   removeFromCart,
@@ -49,8 +49,10 @@ const userDetailsSchema = z.object({
 type UserDetails = z.infer<typeof userDetailsSchema>;
 
 const Checkout = () => {
-    const [showModal, setShowModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = React.useState("cash");
+  const [showClearCartModal, setShowClearCartModal] = useState(false);
+  const [showRemoveItemModal, setShowRemoveItemModal] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [createOrder, { isLoading }] = useCreateOrderMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -104,27 +106,34 @@ const Checkout = () => {
   };
 
   const handleRemove = (id: string) => {
-    dispatch(removeFromCart(id));
-    toast.success("Item removed from cart", { duration: 2000 });
+    setItemToRemove(id);
+    setShowRemoveItemModal(true);
   };
 
-  const handleIncrease = (id: string) => {
-    dispatch(increaseQuantity(id));
-    toast.success("Quantity increased", { duration: 2000 });
+  const handleConfirmRemove = () => {
+    if (itemToRemove) {
+      dispatch(removeFromCart(itemToRemove));
+      toast.success("Item removed from cart", { duration: 2000 });
+      setItemToRemove(null);
+    }
+    setShowRemoveItemModal(false);
   };
 
-  const handleDecrease = (id: string) => {
-    dispatch(decreaseQuantity(id));
-    toast.success("Quantity decreased", { duration: 2000 });
+  const handleClearCart = () => {
+    setShowClearCartModal(true);
+  };
+
+  const confirmClearCart = () => {
+    dispatch(clearCart());
+    setShowClearCartModal(false);
+    toast.success("Cart cleared!", { duration: 2000 });
   };
 
   const totalPrice = cartItems.reduce((total, item) => {
     const product = products?.find((p: Product) => p._id === item.id);
     return total + (product ? product.price * item.quantity : 0);
   }, 0);
- const handleClearCart = () => {
-   setShowModal(true);
- };
+
   return (
     <div>
       <PageTitle title="Checkout" breadcrumbs={breadcrumbs} />
@@ -221,7 +230,7 @@ const Checkout = () => {
 
             <h2 className="text-xl font-bold mt-8">Cart Items</h2>
 
-            <div className="container">
+            <div className="">
               <Table>
                 <TableCaption>A list of items in your cart.</TableCaption>
                 <TableHeader>
@@ -257,17 +266,21 @@ const Checkout = () => {
                       );
                     return (
                       <TableRow key={item.id}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-bold">
                           {product.name}
                         </TableCell>
-                        <TableCell>${product.price}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell className="text-right">
+                        <TableCell>${product.price.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <span>{item.quantity}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-bold text-[#1b352c] ">
                           ${(product.price * item.quantity).toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right">
-                          <button
-                            onClick={() => handleDecrease(item.id)}
+                          <Button
+                            onClick={() => dispatch(decreaseQuantity(item.id))}
                             disabled={item.quantity <= 1}
                             className={`mr-2 py-1 px-2 rounded font-bold cursor-pointer ${
                               item.quantity <= 1
@@ -276,10 +289,10 @@ const Checkout = () => {
                             }`}
                           >
                             -
-                          </button>
+                          </Button>
 
-                          <button
-                            onClick={() => handleIncrease(item.id)}
+                          <Button
+                            onClick={() => dispatch(increaseQuantity(item.id))}
                             disabled={item.quantity >= (product?.stock || 0)}
                             className={`mr-2 py-1 px-2 rounded font-bold cursor-pointer ${
                               item.quantity >= (product?.stock || 0)
@@ -288,14 +301,13 @@ const Checkout = () => {
                             }`}
                           >
                             +
-                          </button>
-
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => handleRemove(item.id)}
                             className="py-1 px-2 rounded bg-[#1b352c] text-white hover:bg-[#ff8851] font-medium"
                           >
                             Remove
-                          </button>
+                          </Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -304,50 +316,74 @@ const Checkout = () => {
                 <TableFooter>
                   <TableRow>
                     <TableCell
-                      className="text-left text-lg font-bold"
-                      colSpan={2}
+                      className="font-bold text-[#1b352c] text-xl"
+                      colSpan={3}
                     >
                       Total
                     </TableCell>
-                    <TableCell colSpan={3} className="text-right font-medium">
-                      ${totalPrice.toFixed(2)}
+                    <TableCell className="text-right font-bold text-[#1b352c] text-xl">
+                      $ {totalPrice?.toFixed(2)}
                     </TableCell>
+                   
                   </TableRow>
-                  <Button
-                    className="bg-red-500 text-white hover:bg-red-700  mx-auto"
-                    onClick={handleClearCart}
-                  >
-                    Clear Cart 
-                  </Button>
                 </TableFooter>
               </Table>
+            </div>
+
+            <div className="flex space-x-4 mt-8">
+              <Button
+                onClick={handleClearCart}
+                className="bg-red-500 text-white hover:bg-red-600"
+              >
+                Clear Cart
+              </Button>
+              <Link to="/products">
+                <Button className="bg-[#ff8851] text-white hover:bg-[#1b352c]">
+                  Continue Shopping
+                </Button>
+              </Link>
             </div>
           </>
         )}
       </div>
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold mb-4">
-              Are you sure you want to clear your cart?
-            </h2>
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+
+      {/* Remove Item Modal */}
+      {showRemoveItemModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h3 className="text-lg font-semibold">Confirm Remove Item</h3>
+            <p>Are you sure you want to remove this item from your cart?</p>
+            <div className="flex space-x-4 mt-4">
+              <Button
+                onClick={handleConfirmRemove}
+                className="bg-red-500 text-white hover:bg-red-600"
               >
+                Confirm
+              </Button>
+              <Button onClick={() => setShowRemoveItemModal(false)}>
                 Cancel
-              </button>
-              <button
-                onClick={() => {
-                  dispatch(clearCart());
-                  setShowModal(false);
-                  toast.success("Cart cleared!", { duration: 2000 });
-                }}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Cart Modal */}
+      {showClearCartModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h3 className="text-lg font-semibold">Confirm Clear Cart</h3>
+            <p>Are you sure you want to clear your cart?</p>
+            <div className="flex space-x-4 mt-4">
+              <Button
+                onClick={confirmClearCart}
+                className="bg-red-500 text-white hover:bg-red-600"
               >
-                Clear Cart
-              </button>
+                Confirm
+              </Button>
+              <Button onClick={() => setShowClearCartModal(false)}>
+                Cancel
+              </Button>
             </div>
           </div>
         </div>

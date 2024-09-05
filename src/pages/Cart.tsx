@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useGetAllproductQuery } from "@/redux/api/baseApi";
 import {
   clearCart,
@@ -18,7 +19,6 @@ import {
   TableRow,
   TableFooter,
 } from "@/components/ui/table";
-
 import PageTitle from "@/components/PageTitle";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,27 +26,37 @@ import { toast } from "sonner";
 const breadcrumbs = [{ label: "Home", href: "/" }, { label: `Cart` }];
 
 const Cart = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [itemToRemove, setItemToRemove] = useState<string | null>(null); // Track the item to remove
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [showClearCartModal, setShowClearCartModal] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<string | null>(null);
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart);
 
   const { data, isLoading } = useGetAllproductQuery("");
-
   const products = data?.data.result;
 
   const handleConfirmRemove = () => {
     if (itemToRemove) {
       dispatch(removeFromCart(itemToRemove));
       toast.success("Item removed from cart", { duration: 2000 });
-      setItemToRemove(null); // Clear the item to remove
+      setItemToRemove(null);
     }
-    setShowModal(false);
+    setShowRemoveModal(false);
   };
 
   const handleRemove = (id: string) => {
-    setItemToRemove(id); // Set the item to remove
-    setShowModal(true); // Show the modal
+    setItemToRemove(id);
+    setShowRemoveModal(true); // Show the remove item modal
+  };
+
+  const handleConfirmClearCart = () => {
+    dispatch(clearCart());
+    setShowClearCartModal(false);
+    toast.success("Cart cleared!", { duration: 2000 });
+  };
+
+  const handleClearCart = () => {
+    setShowClearCartModal(true); // Show the clear cart modal
   };
 
   const handleIncrease = (id: string) => {
@@ -57,10 +67,6 @@ const Cart = () => {
   const handleDecrease = (id: string) => {
     dispatch(decreaseQuantity(id));
     toast.success("Quantity decreased", { duration: 2000 });
-  };
-
-  const handleClearCart = () => {
-    setShowModal(true);
   };
 
   const totalPrice = cartItems.items?.reduce((total: any, item: any) => {
@@ -109,7 +115,7 @@ const Cart = () => {
                       </TableCell>
                       <TableCell>${product.price}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right font-bold text-[#1b352c] ">
                         ${(product.price * item.quantity).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right">
@@ -169,12 +175,19 @@ const Cart = () => {
                 </TableRow>
               </TableFooter>
             </Table>
-            <Button
-              className="bg-red-500 text-white hover:bg-red-700 mr-2 block mx-auto"
-              onClick={handleClearCart}
-            >
-              Clear Cart
-            </Button>
+            <div className="flex space-x-4 mt-8">
+              <Button
+                onClick={handleClearCart}
+                className="bg-red-500 text-white hover:bg-red-600"
+              >
+                Clear Cart
+              </Button>
+              <Link to="/products">
+                <Button className="bg-[#ff8851] text-white hover:bg-[#1b352c]">
+                  Continue Shopping
+                </Button>
+              </Link>
+            </div>
           </>
         ) : (
           <div className="text-center py-44">
@@ -189,34 +202,49 @@ const Cart = () => {
       </div>
 
       {/* Modal for removing an item */}
-      {showModal && (
+      {showRemoveModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-bold mb-4">
-              {itemToRemove
-                ? "Are you sure you want to remove this item?"
-                : "Are you sure you want to clear your cart?"}
+              Are you sure you want to remove this item?
             </h2>
             <div className="flex justify-end">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => setShowRemoveModal(false)}
                 className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
               >
                 Cancel
               </button>
               <button
-                onClick={
-                  itemToRemove
-                    ? handleConfirmRemove
-                    : () => {
-                        dispatch(clearCart());
-                        setShowModal(false);
-                        toast.success("Cart cleared!", { duration: 2000 });
-                      }
-                }
+                onClick={handleConfirmRemove}
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
               >
-                {itemToRemove ? "Remove Item" : "Clear Cart"}
+                Remove Item
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for clearing the cart */}
+      {showClearCartModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-bold mb-4">
+              Are you sure you want to clear your cart?
+            </h2>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowClearCartModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmClearCart}
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Clear Cart
               </button>
             </div>
           </div>
