@@ -1,7 +1,7 @@
 import SectionHeading from "@/components/SectionHeading";
 import Map from "./Map";
 import { Mail, Map as MapIcon, PhoneCall  } from "lucide-react";
-
+import faqImg from "../../assets/bgtes.webp";
 
 const Contact = () => {
   return (
@@ -11,11 +11,14 @@ const Contact = () => {
           headingText="Contact Us"
           paragraphText=" We're here to help—reach out to us with any questions or feedback!"
         />
-        <div className="grid grid-cols-1 lg:grid-cols-65-35  pt-14 space-y-4 lg:space-y-0">
+        <div className="grid grid-cols-1 lg:grid-cols-65-35  pt-14 space-y-10 lg:space-y-0">
           <div>
             <Map />
           </div>
-          <div className="shadow-custom rounded bg-[#EDF1F0]">
+          <div
+            className="shadow-custom rounded bg-[#2C4A28]"
+            style={{ backgroundImage: `url(${faqImg})` }}
+          >
             <div className="rounded ">
               <div className="bg-[#1b352c] text-center py-5 rounded-t-lg">
                 <h2 className="text-3xl font-semibold text-white">
@@ -24,11 +27,13 @@ const Contact = () => {
               </div>
               <div>
                 <div>
-                  <div className="flex items-center gap-5 space-x-5 justify-center border-b-2 py-5">
+                  <div className="flex items-center gap-5 space-x-5 justify-center border-b py-5">
                     <MapIcon size={40} color="#ff8851" />
                     <div>
-                      <p className="text-xl font-bold">Our Location​</p>
-                      <small className="text-base">
+                      <p className="text-xl font-bold text-white">
+                        Our Location
+                      </p>
+                      <small className="text-base text-white">
                         456, Lorem Street,
                         <br /> New York, 33454, NY
                       </small>
@@ -39,11 +44,13 @@ const Contact = () => {
               <div>
                 {" "}
                 <div>
-                  <div className="flex items-center gap-5 space-x-5 justify-center border-b-2 py-5">
+                  <div className="flex items-center gap-5 space-x-5 justify-center border-b py-5">
                     <PhoneCall size={40} color="#ff8851" />
                     <div>
-                      <p className="text-xl font-bold">Phone Number</p>
-                      <small className="text-base">
+                      <p className="text-xl font-bold text-white">
+                        Phone Number
+                      </p>
+                      <small className="text-base text-white">
                         +1 888-654-4329
                         <br /> +1 888-543-8765
                       </small>
@@ -53,11 +60,13 @@ const Contact = () => {
               </div>
               <div>
                 <div>
-                  <div className="flex items-center gap-5 space-x-5 justify-center border-b-2 py-5">
+                  <div className="flex items-center gap-5 space-x-5 justify-center border-b py-5">
                     <Mail size={40} color="#ff8851" />
                     <div>
-                      <p className="text-xl font-bold">Email Address​</p>
-                      <small className="text-base">
+                      <p className="text-xl font-bold text-white">
+                        Email Address
+                      </p>
+                      <small className="text-base text-white">
                         contact@example.com
                         <br /> admin@example.com
                       </small>

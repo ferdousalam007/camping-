@@ -10,7 +10,7 @@ const breadcrumbs = [
 const AboutUs = () => {
   return (
     <>
-      <PageTitle title="About Us" breadcrumbs={breadcrumbs} />;
+      <PageTitle title="About Us" breadcrumbs={breadcrumbs} />
       <div className="pt-20">
         <div className="">
           <Mission />

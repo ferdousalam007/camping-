@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useRef } from "react";
 import { Toaster, toast } from "sonner";
 import { useGetSinglProductQuery } from "@/redux/api/baseApi";
 import { Button } from "@/components/ui/button";
@@ -14,11 +16,13 @@ import { RootState } from "@/redux/store";
 import ProductSlider from "@/components/ProductSlider";
 import PageTitle from "@/components/PageTitle";
 
-//component
+// Component
 const ProductDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { data, isLoading } = useGetSinglProductQuery(id);
+  const containerRef = useRef(null); // Create a ref for the container section
+
   const {
     name,
     description,
@@ -31,18 +35,26 @@ const ProductDetails = () => {
     recommended,
   } = data?.data || {};
 
+  // Scroll to the container section when the component mounts
+  useEffect(() => {
+    if (containerRef.current) {
+            (containerRef.current as HTMLElement).scrollIntoView({
+              behavior: "smooth",
+            });
+    }
+  }, []);
+
   const cartItem = useSelector((state: RootState) =>
     state.cart.items.find((item: any) => item.id === id)
   );
 
-  // Select the current state of the wishlist
   const wishListItems = useSelector((state: any) =>
     state.cart.wishList.filter((item: any) => item.id === id)
   );
 
   const handleAddToCart = () => {
     if (cartItem && cartItem.quantity >= stock) {
-      toast.error("This item is are not available in stock.", { duration: 2000 });
+      toast.error("This item is not available in stock.", { duration: 2000 });
       return;
     }
     dispatch(addToCart(id as string));
@@ -85,7 +97,9 @@ const ProductDetails = () => {
       <Toaster position="top-center" richColors />
 
       <PageTitle title="Product Details" breadcrumbs={breadcrumbs} />
-      <div className="container py-14">
+
+      {/* Add the ref to the container section */}
+      <div ref={containerRef} className="container py-14">
         <div className="flex flex-col items-center p-4  text-black ">
           <div className="max-w-6xl w-full  rounded-lg shadow-lg p-6 animate__animated animate__fadeIn">
             <div className="grid grid-cols-1  md:grid-cols-2 gap-5">
@@ -131,14 +145,14 @@ const ProductDetails = () => {
                     {stock <= 0 && "Out of Stock"}
                     {stock > 0 && `In Stock (${stock})`}
                   </p>
-                  <div className="flex space-x-4 mb-4 mt-3 flex-wrap">
+                  <div className="flex  mb-4 mt-3 flex-wrap gap-3">
                     {featured && (
                       <p className="bg-[#ff9d707a] px-[12px] py-[5px] inline-block rounded text-[#1b352c] font-bold">
                         Featured
                       </p>
                     )}
                     {recommended && (
-                      <p className="bg-[#EBF4E4] px-[12px] py-[5px] inline-block rounded text-[#1b352c] font-bold">
+                      <p className="bg-[#EBF4E4] px-[12px] py-[5px] inline-block rounded text-[#1b352c] font-bold ">
                         Recommended
                       </p>
                     )}

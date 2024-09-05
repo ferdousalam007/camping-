@@ -1,6 +1,6 @@
 import SectionHeading from "@/components/SectionHeading";
-import blog1 from "./../../assets/blog1.jpg";
-import blog2 from "./../../assets/blog2.png";
+import blog1 from "./../../assets/tent-sites.jpg";
+import blog2 from "./../../assets/blog1.webp";
 import VideoPopup from "@/components/VideoPopup";
 const VideoBlogs = () => {
   return (

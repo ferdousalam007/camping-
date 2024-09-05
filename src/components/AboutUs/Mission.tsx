@@ -1,4 +1,4 @@
-import aboutImg from "../../assets/aboutUs.jpg"
+import aboutImg from "../../assets/aboutUs.webp"
 
 const Mission = () => {
   return (
@@ -49,8 +49,8 @@ const Mission = () => {
             </p>
           </div>
         </div>
-        <div className="w-full pl-8 ">
-          <img className="w-full   " src={aboutImg} alt="" />
+        <div className="w-full pl-8 mt-8 lg:pt-0">
+          <img className="w-full" src={aboutImg} alt="" />
         </div>
       </div>
     </div>

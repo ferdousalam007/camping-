@@ -64,7 +64,7 @@ const TeamMember = () => {
             headingText="Meet Our Team"
             paragraphText="Get to know the passionate team behind Camping Shop!"
           />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pt-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pt-12">
             {teamMembers.map((member, index) => (
               <TeamCard
                 key={index}

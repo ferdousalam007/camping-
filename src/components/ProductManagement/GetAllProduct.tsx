@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"; // Assume you have a Dialog component ready for use
+import { Button } from "@/components/ui/button"; // Assume you have a Button component
+import {
   Table,
   TableBody,
   TableCaption,
@@ -53,6 +62,10 @@ const GetAllProduct = () => {
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete confirmation modal
+  const [productToDelete, setProductToDelete] = useState<string | null>(null); // State for the product to delete
+
   const {
     data: products,
     isLoading,
@@ -92,15 +105,23 @@ const GetAllProduct = () => {
 
   const [deleteProduct] = useDeleteProductMutation();
 
-  const handleDeleteProduct = async (productId: string) => {
-    try {
-      await deleteProduct(productId).unwrap(); // Ensure the mutation is unwrapped to handle errors properly
-      refetch();
-      toast.success("Product deleted successfully", { duration: 2000 });
-    } catch (error) {
-      isError &&
-        toast.error((error as any)?.data?.message || "An error occurred");
+  const handleDeleteProduct = async () => {
+    if (productToDelete) {
+      try {
+        await deleteProduct(productToDelete).unwrap();
+        refetch();
+        setIsDeleteModalOpen(false);
+        toast.success("Product deleted successfully", { duration: 2000 });
+      } catch (error) {
+        isError &&
+          toast.error((error as any)?.data?.message || "An error occurred");
+      }
     }
+  };
+
+  const handleDeleteClick = (productId: string) => {
+    setProductToDelete(productId);
+    setIsDeleteModalOpen(true);
   };
   const handleEditClick = (product: any) => {
     setSelectedProduct(product);
@@ -114,12 +135,13 @@ const GetAllProduct = () => {
       </div>
     );
   }
-if (isCategoriesLoading) {
-  return (
-    <div className="flex justify-center items-center h-screen">loading...</div>
-  );
-}
- 
+  if (isCategoriesLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        loading...
+      </div>
+    );
+  }
 
   // if (isDeleting) {
   //   return (
@@ -135,11 +157,11 @@ if (isCategoriesLoading) {
     <div>
       {/* Add Toaster component to render the toast messages */}
       <Toaster position="top-center" richColors />
-      <h1 className="text-3xl font-bold mb-4">Get All Products</h1>
+      <h1 className="text-3xl font-bold mb-4">Get All Products11</h1>
 
       <div className="mb-4">
         <div className="flex flex-wrap items-end">
-          <div className="flex-1 m-2">
+          <div className="flex-1 m-2 min-w-[155px]">
             <label htmlFor="search" className="block mb-2">
               Search
             </label>
@@ -151,7 +173,7 @@ if (isCategoriesLoading) {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex-1 m-2">
+          <div className="flex-1 m-2 min-w-[155px]">
             <label htmlFor="category" className="block mb-2">
               Category
             </label>
@@ -182,7 +204,7 @@ if (isCategoriesLoading) {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex-1 m-2">
+          <div className="flex-1 m-2 min-w-[155px]">
             <label htmlFor="minPrice" className="block mb-2">
               Min Price
             </label>
@@ -195,7 +217,7 @@ if (isCategoriesLoading) {
               min={0}
             />
           </div>
-          <div className="flex-1 m-2">
+          <div className="flex-1 m-2 min-w-[155px]">
             <label htmlFor="maxPrice" className="block mb-2">
               Max Price
             </label>
@@ -208,7 +230,7 @@ if (isCategoriesLoading) {
               min={0}
             />
           </div>
-          <div className="flex-1 m-2">
+          <div className="flex-1 m-2 min-w-[155px]">
             <label htmlFor="sort" className="block mb-2">
               Sort by Price
             </label>
@@ -238,7 +260,7 @@ if (isCategoriesLoading) {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex-1 m-2">
+          <div className="flex-1 m-2 min-w-[155px]">
             <label htmlFor="productsPerPage" className="block mb-2">
               Products per Page
             </label>
@@ -265,7 +287,7 @@ if (isCategoriesLoading) {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex-1 m-2">
+          <div className="flex-1 m-2 min-w-[155px]">
             <button
               onClick={() => handleClear()}
               className="w-full p-2 bg-[#1b352c] text-white hover:bg-[#1b352c]"
@@ -314,7 +336,7 @@ if (isCategoriesLoading) {
               <TableCell className="text-right">${product?.price}</TableCell>
               <TableCell className="text-right">
                 <Trash2
-                  onClick={() => handleDeleteProduct(product._id)}
+                  onClick={() => handleDeleteClick(product._id)}
                   className="cursor-pointer text-right inline-block text-red-600"
                 />
                 <FilePenLine
@@ -368,10 +390,35 @@ if (isCategoriesLoading) {
         onClose={() => setIsDialogOpen(false)}
         selectedProduct={selectedProduct}
       />
-      {/* <CreateCategoryDialog /> */}
+
+      {/* Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this product? This action cannot
+                be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button className="bg-[#ff8851] mt-3 sm:mt-0" onClick={handleDeleteProduct}>
+                OK
+              </Button>
+              <Button
+                variant="outline"
+                className="border-[#ff8851] bg-[#1b352c] text-[#fff] "
+                onClick={() => setIsDeleteModalOpen(false)}
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
 
 export default GetAllProduct;
-// product per page 10 not working

@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Rating from "react-rating";
 import { Star } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
-
+import bannerImg from "../../assets/bgtes.webp";
 import img1 from "./../../assets/testimonial1.jpg";
 import img2 from "./../../assets/testimonial2.jpg";
 import img3 from "./../../assets/testimonial3.jpg";
@@ -76,7 +76,10 @@ const Testimonials = () => {
     Autoplay({ delay: 40000000, stopOnInteraction: true })
   );
   return (
-    <div className="bg-custom-bg  bg-cover  bg-no-repeat min-h-[700px] w-full py-20">
+    <div
+      className="bg-cover bg-no-repeat min-h-[700px] w-full py-20 bg-[#2C4A28]"
+      style={{ backgroundImage: `url(${bannerImg})` }}
+    >
       <div className="container">
         <SectionHeading
           textColor="text-white"

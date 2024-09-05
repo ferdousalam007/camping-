@@ -317,7 +317,7 @@ const Checkout = () => {
                     className="bg-red-500 text-white hover:bg-red-700  mx-auto"
                     onClick={handleClearCart}
                   >
-                    Clear All Cart Items
+                    Clear Cart 
                   </Button>
                 </TableFooter>
               </Table>

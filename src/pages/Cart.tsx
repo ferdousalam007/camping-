@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useGetAllproductQuery } from "@/redux/api/baseApi";
 import {
   clearCart,
@@ -17,16 +16,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableCaption,
   TableFooter,
 } from "@/components/ui/table";
 
 import PageTitle from "@/components/PageTitle";
 import { useState } from "react";
 import { toast } from "sonner";
+
 const breadcrumbs = [{ label: "Home", href: "/" }, { label: `Cart` }];
+
 const Cart = () => {
   const [showModal, setShowModal] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<string | null>(null); // Track the item to remove
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart);
 
@@ -34,25 +35,35 @@ const Cart = () => {
 
   const products = data?.data.result;
 
+  const handleConfirmRemove = () => {
+    if (itemToRemove) {
+      dispatch(removeFromCart(itemToRemove));
+      toast.success("Item removed from cart", { duration: 2000 });
+      setItemToRemove(null); // Clear the item to remove
+    }
+    setShowModal(false);
+  };
+
   const handleRemove = (id: string) => {
-    dispatch(removeFromCart(id));
-    toast.success("Item removed from cart", { duration: 2000 });
+    setItemToRemove(id); // Set the item to remove
+    setShowModal(true); // Show the modal
   };
 
   const handleIncrease = (id: string) => {
     dispatch(increaseQuantity(id));
     toast.success("Quantity increased", { duration: 2000 });
-
   };
 
   const handleDecrease = (id: string) => {
     dispatch(decreaseQuantity(id));
     toast.success("Quantity decreased", { duration: 2000 });
   };
+
   const handleClearCart = () => {
     setShowModal(true);
   };
-  const totalPrice = cartItems.items?.reduce((total:any, item: any) => {
+
+  const totalPrice = cartItems.items?.reduce((total: any, item: any) => {
     const product = products.find((p: any) => p._id === item.id);
     return total + (product ? product.price * item.quantity : 0);
   }, 0);
@@ -67,7 +78,6 @@ const Cart = () => {
         {cartItems.items?.length > 0 ? (
           <>
             <Table>
-              <TableCaption>A list of items in your cart.</TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead className="font-bold text-[#1b352c#]">
@@ -88,7 +98,7 @@ const Cart = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {cartItems.items?.map((item:any) => {
+                {cartItems.items?.map((item: any) => {
                   const product = products.find((p: any) => p._id === item.id);
 
                   if (!product) return "No product found";
@@ -150,12 +160,6 @@ const Cart = () => {
                     $ {totalPrice?.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right ">
-                    <Button
-                      className="bg-red-500 text-white hover:bg-red-700 mr-2"
-                      onClick={handleClearCart}
-                    >
-                      Clear All Cart Items
-                    </Button>
                     <Link to="/checkout">
                       <Button className="bg-[#ff8851] text-white hover:bg-[#1b352c]">
                         Place Order
@@ -165,6 +169,12 @@ const Cart = () => {
                 </TableRow>
               </TableFooter>
             </Table>
+            <Button
+              className="bg-red-500 text-white hover:bg-red-700 mr-2 block mx-auto"
+              onClick={handleClearCart}
+            >
+              Clear Cart
+            </Button>
           </>
         ) : (
           <div className="text-center py-44">
@@ -177,11 +187,15 @@ const Cart = () => {
           </div>
         )}
       </div>
+
+      {/* Modal for removing an item */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-bold mb-4">
-              Are you sure you want to clear your cart?
+              {itemToRemove
+                ? "Are you sure you want to remove this item?"
+                : "Are you sure you want to clear your cart?"}
             </h2>
             <div className="flex justify-end">
               <button
@@ -191,14 +205,18 @@ const Cart = () => {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  dispatch(clearCart());
-                  setShowModal(false);
-                  toast.success("Cart cleared!", { duration: 2000 });
-                }}
+                onClick={
+                  itemToRemove
+                    ? handleConfirmRemove
+                    : () => {
+                        dispatch(clearCart());
+                        setShowModal(false);
+                        toast.success("Cart cleared!", { duration: 2000 });
+                      }
+                }
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
               >
-                Clear Cart
+                {itemToRemove ? "Remove Item" : "Clear Cart"}
               </button>
             </div>
           </div>

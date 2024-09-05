@@ -125,7 +125,7 @@ if (isProductsLoading) {
 
                         <CardFooter className="flex justify-center p-4">
                           <Button
-                            className="mt-4"
+                            className="mt-4 bg-[#1b352c] text-white"
                             onClick={() => handleDetailsClick(category)}
                           >
                             Details
@@ -137,8 +137,8 @@ if (isProductsLoading) {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute top-[110%]  left-[45%]" />
-            <CarouselNext className="absolute top-[110%] right-[45%]" />
+            <CarouselPrevious className="absolute top-[110%]  left-[35%] md:left-[45%]" />
+            <CarouselNext className="absolute top-[110%] right-[35%] md:right-[45%]" />
           </Carousel>
         </div>
 
@@ -146,10 +146,10 @@ if (isProductsLoading) {
         {isModalOpen && (
           <CategoryModal onClose={handleCloseModal}>
             <h2 className="text-2xl mb-4">
-              Category: {selectedCategory?.name}
+              Category:1 {selectedCategory?.name}
             </h2>
             {productsInCategory?.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 h-[450px] overflow-y-auto">
                 {productsInCategory?.map((product: ProductCat) => (
                   <ProductCard
                     key={product?._id}

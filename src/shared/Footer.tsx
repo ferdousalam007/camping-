@@ -145,14 +145,14 @@ const Footer = () => {
                 Useful Links
               </h5>
               <div className="space-y-3 flex flex-col">
-                <Link to="/about" className="hover:text-white ">
+                <Link to="/" className="hover:text-white">
+                  Home
+                </Link>
+                <Link to="/aboutus" className="hover:text-white ">
                   About
                 </Link>
-                <Link to="/contact" className="hover:text-white">
-                  Contact
-                </Link>
-                <Link to="/privacy" className="hover:text-white">
-                  Privacy Policy
+                <Link to="/products" className="hover:text-white">
+                  Products
                 </Link>
               </div>
             </div>

@@ -10,10 +10,11 @@ const LeftTitle = ({ firstTitle, secondTitle }: LeftTitleProps) => {
   return (
     <>
       <div className="flex justify-between md:items-center py-8 gap-3 flex-col md:flex-row">
-        <div className="text-4xl  text-[#1b352c]">
+        <div className="text-4xl  text-[#1b352c] ">
           <h1>
-            <span className="text-white px-2 font-medium  rounded mr-1 bg-[#1b352c] inline-block">
+            <span className="px-2 font-medium  rounded mr-1  inline-block relative">
               {firstTitle}{" "}
+              <span className="absolute bottom-[-5px] left-[10px] w-[90%] h-[1px] bg-[#ff702e]"></span>
             </span>
             <span className="text-[#ff702e] font-bold">{secondTitle}</span>
           </h1>

@@ -28,7 +28,7 @@ const MobileNavbar = () => {
       <SheetContent className="bg-slate-900">
         <SheetHeader>
           <SheetTitle>
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex items-center justify-center">
               <Tent className="bg-white" />
               <h3 className="font-medium text-2xl text-white p-1 rounded-md">
                 Camping Shop
@@ -40,7 +40,7 @@ const MobileNavbar = () => {
           <Link
             to="/"
             className={` ${location.pathname === "/" ? "bg-gray-800" : ""}
-            block px-4 py-2 rounded-md text-white`}
+            block px-4 py-2 rounded-md text-white text-center`}
           >
             Home
           </Link>
@@ -49,7 +49,7 @@ const MobileNavbar = () => {
             className={` ${
               location.pathname === "/aboutus" ? "bg-gray-800" : ""
             }
-            block px-4 py-2 rounded-md text-white`}
+            block px-4 py-2 rounded-md text-white text-center`}
           >
             Aboutus
           </Link>
@@ -58,14 +58,14 @@ const MobileNavbar = () => {
             className={` ${
               location.pathname === "/products" ? "bg-gray-800" : ""
             }
-            block px-4 py-2 rounded-md text-white`}
+            block px-4 py-2 rounded-md text-white text-center`}
           >
             Products
           </Link>
           <Link
             to="/cart"
             className={` ${location.pathname === "/cart" ? "bg-gray-800" : ""}
-            block px-4 py-2 rounded-md text-white`}
+            block px-4 py-2 rounded-md text-white text-center`}
           >
             Cart
           </Link>
@@ -74,30 +74,38 @@ const MobileNavbar = () => {
             className={` ${
               location.pathname === "/productmanagement" ? "bg-gray-800" : ""
             }
-            block px-4 py-2 rounded-md text-white`}
+            block px-4 py-2 rounded-md text-white text-center`}
           >
             Product Management
           </Link>
-          <Link to="/cart">
-            <NavigationMenuLink className="group mr-3 inline-flex relative top-2 h-10 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 hover:bg-[#ff8851]">
-              <ShoppingCart className="cursor-pointer w-5 text-white " />
-              {cart.items.length > 0 && (
-                <span className="ml-1 absolute right-[-10px] top-[-10px] bg-blue-600 text-white px-1 rounded px-2">
-                  {cart.items.reduce((total: number, item: (typeof cart.items)[number]) => total + item.quantity, 0)}
-                </span>
-              )}
+          <div className="flex justify-center items-center mt-3">
+            <Link to="/cart">
+              <NavigationMenuLink className="group mr-3 inline-flex relative top-2 h-10 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors  hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 hover:bg-[#ff8953]">
+                <ShoppingCart className="cursor-pointer w-5 text-white" />
+                {cart.items.length > 0 && (
+                  <span className="ml-1 absolute right-[-10px] top-[-10px] bg-[#fa8650] text-white  rounded px-2">
+                    {cart.items.reduce(
+                      (total: number, item: (typeof cart.items)[number]) =>
+                        total + item.quantity,
+                      0
+                    )}
+                  </span>
+                )}
+              </NavigationMenuLink>
+            </Link>
+            <NavigationMenuLink className="group mr-3 inline-flex relative top-2 h-10 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors  hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 hover:bg-[#ff8b55]">
+              <WishListDropdown />
+              <span className="ml-1 absolute right-[-10px] top-[-10px] bg-[#fa8650] text-white px-1 rounded px-2">
+                {wishList.length > 0 && wishList.length}
+              </span>
             </NavigationMenuLink>
-          </Link>
-          <NavigationMenuLink className="group mr-3 inline-flex relative top-2 h-10 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 hover:bg-[#ff8851]">
-            <WishListDropdown />
-            <span className="ml-1 absolute right-[-10px] top-[-10px] bg-blue-600 text-white px-1 rounded px-2">
-              {wishList.length > 0 && wishList.length}
-            </span>
-          </NavigationMenuLink>
+          </div>
         </div>
         <SheetFooter>
           <SheetClose asChild>
-            <Button type="submit">Close</Button>
+            <Button className="w-full bg-[#ff8851]" type="submit">
+              Close
+            </Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>

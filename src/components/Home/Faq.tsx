@@ -1,5 +1,5 @@
 import SectionHeading from "@/components/SectionHeading";
-
+import faqImg from "../../assets/according.jpg"
 import {
   Accordion,
   AccordionContent,
@@ -18,7 +18,10 @@ const Faq = () => {
           paragraphText="Find answers to your most common camping gear questions!"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 min-h-[600px] my-20 bg-white">
-          <div className=" hidden md:block bg-according-bg bg-cover bg-position-center bg-no-repeat h-auto w-full"></div>
+          <div
+            className=" hidden md:block  bg-cover bg-position-center bg-no-repeat h-auto w-full"
+            style={{ backgroundImage: `url(${faqImg})` }}
+          ></div>
           <div className="pl-5 lg:pl-10 py-4 rounded">
             <Accordion
               type="single"

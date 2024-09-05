@@ -9,11 +9,18 @@ import ProductManagement from "@/pages/ProductManagement";
 import Products from "@/pages/Products";
 import { createBrowserRouter } from "react-router-dom";
 import Success from "@/pages/Success";
+import ScrollToTop from "./ScrollToTop";
+
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayouts />,
+    element: (
+      <>
+        <ScrollToTop /> 
+        <MainLayouts />
+      </>
+    ),
     children: [
       {
         index: true,

@@ -14,11 +14,9 @@ const CategoryModal: FC<CategoryModalProps> = ({ onClose, children }) => {
   return (
     <div
       onClick={handleBackgroundClick}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-[#1b352c] bg-opacity-50 flex items-center justify-center z-50 "
     >
-      <div className="bg-white p-8 rounded-lg max-w-lg w-full">
-        {children}
-      </div>
+      <div className="bg-white p-8 rounded-lg max-w-lg w-full">{children}</div>
     </div>
   );
 };

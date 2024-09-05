@@ -146,13 +146,13 @@ const handleTransferToCart = (itemId: string) => {
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed z-30 inset-0 bg-black/40" />
-          <Drawer.Content className="bg-white z-[99999999] flex flex-col rounded-t-[10px] h-full w-[400px] mt-24 fixed bottom-0 right-0">
-            <div className="p-4 bg-white flex-1 h-full">
+          <Drawer.Content className="bg-slate-900 z-[99999999] flex flex-col rounded-t-[10px] h-full w-[350px] md:w-[400px] mt-24 fixed bottom-0 right-0">
+            <div className="p-4 bg-slate-800 flex-1 h-full">
               <div className="max-w-md mx-auto">
-                <Drawer.Title className="font-medium mb-4 text-2xl">
+                <Drawer.Title className="font-medium mb-4 text-2xl text-white">
                   All Your WishList
                 </Drawer.Title>
-                <p className="text-zinc-600 mb-2">
+                <p className="text-white mb-2">
                   <Table>
                     <TableCaption>{`Total: ${wishlistItems.length} Item`}</TableCaption>
                     <TableHeader>
@@ -171,19 +171,19 @@ const handleTransferToCart = (itemId: string) => {
                         if (!product) return "No product found";
                         return (
                           <TableRow key={product.id}>
-                            <TableCell className="text-[#1b352c] font-medium">
+                            <TableCell className="text-white font-medium">
                               {`${product.name}`}
                             </TableCell>
                             <TableCell className="text-[#ff8851] font-medium">
                               {`$ ${product.price}`}
                             </TableCell>
-                            <TableCell className="text-red-400 font-medium space-x-2">
+                            <TableCell className="text-red-400 font-medium space-x-3">
                               <button
                                 onClick={() =>
                                   handleTransferToCart(product._id)
                                 }
                               >
-                                <ShoppingBasket color="#1b352c" />
+                                <ShoppingBasket color="#2edb34" />
                               </button>
                               <button
                                 onClick={() =>
@@ -216,7 +216,6 @@ const handleTransferToCart = (itemId: string) => {
                 <p className="text-zinc-600 mb-8 mt-8">
                   <DrawerFooter>
                     <DrawerClose>
-                     
                       <Button
                         className="w-full bg-[#ff8851] text-gray-900"
                         variant="outline"
