@@ -3,7 +3,7 @@
 This project is a full-stack application for an online camping shop built with React, TypeScript, and Vite. It features a user-friendly interface, robust product management, and a seamless shopping experience.
 
 ## Live link
-## Live link
+
 [https://camping-frontend-nine.vercel.app](https://camping-frontend-nine.vercel.app) 
 
 
@@ -13,9 +13,12 @@ This project is a full-stack application for an online camping shop built with R
 - **Product Details:** View detailed information about each product, including images, descriptions, and reviews.
 - **Shopping Cart:** Add items to your cart, adjust quantities, and proceed to checkout.
 - **Wishlist:** Save items you like for later purchase.
-- **User Authentication:** Create an account or log in to manage your orders, wishlist, and profile.
 - **Order Tracking:** Track the status of your orders.
 - **Product Management:** Admin users can add, edit, and delete products, manage categories, and update inventory.
+- **User Experience:** User-friendly product browsing experience
+-Advanced search and filtering capabilities
+-Responsive design for all devices
+-Secure payment integration with Cash on Delivery
 
 ## Technologies Used
 
@@ -46,7 +49,7 @@ This project is a full-stack application for an online camping shop built with R
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/camping-shop.git
+   git clone https://github.com/ferdousalam007/camping-.git
    ```
 
 2. **Install dependencies:**
@@ -62,70 +65,21 @@ This project is a full-stack application for an online camping shop built with R
 
 4. **Access the application:**
    Open [http://localhost:5173/](http://localhost:5173/) in your browser.
-
+   
+5. **Add .env file and configure it:** VITE_BACKEND_URL="https://your-backend/api"
 ## Project Structure
 
-camping-shop/
-├── src/
-│ ├── components/
-│ │ ├── AboutUs/
-│ │ │ ├── Contact.tsx
-│ │ │ └── Mission.tsx
-│ │ ├── Home/
-│ │ │ ├── Testimonials.tsx
-│ │ │ └── Hero.tsx
-│ │ ├── Product/
-│ │ │ ├── ProductCard.tsx
-│ │ │ ├── ProductDetails.tsx
-│ │ │ └── ProductSlider.tsx
-│ │ ├── Cart/
-│ │ │ ├── CartItem.tsx
-│ │ │ └── CartPage.tsx
-│ │ ├── Wishlist/
-│ │ │ ├── WishListDropdown.tsx
-│ │ │ └── WishListItem.tsx
-│ │ ├── Navigation/
-│ │ │ ├── MobileNavbar.tsx
-│ │ │ └── Navbar.tsx
-│ │ ├── UI/
-│ │ │ ├── button.tsx
-│ │ │ ├── navigation-menu.tsx
-│ │ │ └── input.tsx
-│ │ ├── ProductManagement/
-│ │ │ ├── UpdateForm.tsx
-│ │ │ └── CreateForm.tsx
-│ │ └── ReloadModal.tsx
-│ ├── redux/
-│ │ ├── store.ts
-│ │ ├── api/
-│ │ │ ├── baseApi.ts
-│ │ │ └── authApi.ts
-│ │ ├── slices/
-│ │ │ ├── cartSlice.ts
-│ │ │ └── authSlice.ts
-│ ├── router/
-│ │ └── index.tsx
-│ ├── App.css
-│ ├── index.css
-│ ├── main.tsx
-│ ├── assets/
-│ │ ├── tent.png
-│ │ └── react.svg
-│ ├── types/
-│ │ └── type.ts
-│ ├── lib/
-│ │ └── utils.ts
-│ ├── tailwind.config.js
-│ ├── postcss.config.js
-│ ├── vite.config.ts
-│ └── tsconfig.json
-├── package.json
-├── .gitignore
-├── public/
-│ └── vite.svg
-├── components.json
-├── test.txt
-└── package-lock.json
+The project is structured as follows:
+
+- `src/`: Contains all the source files for the frontend.
+  - `components/`: React components for various features like Home, About Us, Product Listing, etc.
+  - `redux/`: Redux toolkit slices and store configuration.
+  - `router/`: React Router setup.
+  - `assets/`: Static assets like images and icons.
+  - `types/`: TypeScript types and interfaces.
+  - `lib/`: Utility functions and libraries.
+
+- `public/`: Public assets and the entry HTML file.
 
 
 ## Contributing
