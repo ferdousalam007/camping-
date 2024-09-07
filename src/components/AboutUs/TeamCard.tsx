@@ -1,5 +1,6 @@
 import React from "react";
-
+import { motion } from "framer-motion";
+import { fadeOut } from "../../variants";
 interface TeamMemberProps {
   imageUrl: string;
   name: string;
@@ -20,7 +21,13 @@ const TeamCard: React.FC<TeamMemberProps> = ({
   socialLinks,
 }) => {
   return (
-    <div className="drop-shadow-xl relative overflow-hidden team-box rounded-md">
+    <motion.div
+      variants={fadeOut("right")}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.7 }}
+      className="drop-shadow-xl relative overflow-hidden team-box rounded-md"
+    >
       <div>
         <img src={imageUrl} alt={name} />
         <div className="absolute right-[14px] bottom-[55px]">
@@ -174,7 +181,7 @@ const TeamCard: React.FC<TeamMemberProps> = ({
         <h3 className="font-bold text-xl">{name}</h3>
         <p>{position}</p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

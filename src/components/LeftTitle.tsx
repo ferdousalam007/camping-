@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
+import { motion } from "framer-motion";
+import { fadeIn } from "../variants";
 
 interface LeftTitleProps {
   firstTitle: string;
@@ -9,7 +11,13 @@ interface LeftTitleProps {
 const LeftTitle = ({ firstTitle, secondTitle }: LeftTitleProps) => {
   return (
     <>
-      <div className="flex justify-between md:items-center py-8 gap-3 flex-col md:flex-row">
+      <motion.div
+        variants={fadeIn("left", 0.2)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: false, amount: 0.7 }}
+        className="flex justify-between md:items-center py-8 gap-3 flex-col md:flex-row"
+      >
         <div className="text-4xl  text-[#1b352c] ">
           <h1>
             <span className="px-2 font-medium  rounded mr-1  inline-block relative">
@@ -40,7 +48,7 @@ const LeftTitle = ({ firstTitle, secondTitle }: LeftTitleProps) => {
             All Products
           </Button>
         </Link>
-      </div>
+      </motion.div>
     </>
   );
 };

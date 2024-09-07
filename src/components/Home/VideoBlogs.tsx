@@ -2,6 +2,8 @@ import SectionHeading from "@/components/SectionHeading";
 import blog1 from "./../../assets/tent-sites.jpg";
 import blog2 from "./../../assets/blog1.webp";
 import VideoPopup from "@/components/VideoPopup";
+import { motion } from "framer-motion";
+import { fadeOut } from "../../variants";
 const VideoBlogs = () => {
   return (
     <div className="bg-[#EDF1F0] py-12">
@@ -11,7 +13,13 @@ const VideoBlogs = () => {
           paragraphText="Watch our latest video blogs for expert camping tips and adventure inspiration!"
         />
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-11 pt-12 pb-10 ">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg relative">
+          <motion.div
+            variants={fadeOut("right")}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: false, amount: 0.7 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg relative"
+          >
             <div className="w-full h-[325px]">
               <img
                 src={blog1}
@@ -30,8 +38,14 @@ const VideoBlogs = () => {
               <p className="text-base font-semibold">August 23, 2019</p>
               <VideoPopup videoUrl="https://www.youtube.com/watch?v=HkX0NE7Ujeg" />
             </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg relative ">
+          </motion.div>
+          <motion.div
+            variants={fadeOut("left")}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: false, amount: 0.7 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg relative "
+          >
             <div className="w-full h-[325px] ">
               <img
                 src={blog2}
@@ -50,7 +64,7 @@ const VideoBlogs = () => {
               <p className="text-base font-semibold">August 23, 2019</p>
               <VideoPopup videoUrl="https://www.youtube.com/watch?v=WdXnHb7s7Is" />
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

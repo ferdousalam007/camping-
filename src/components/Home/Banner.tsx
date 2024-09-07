@@ -1,13 +1,20 @@
-
+import { motion } from "framer-motion";
+import { fadeIn } from "../../variants";
 import bannerImg from "../../assets/banner.webp";
 const Banner = () => {
   return (
     <div
-      className="bg-cover bg-no-repeat min-h-[800px] w-full flex items-center justify-center"
+      className="bg-cover bg-no-repeat min-h-[800px] w-full flex items-center justify-center overflow-hidden"
       style={{ backgroundImage: `url(${bannerImg})` }}
     >
       <div className="container">
-        <div className="w-full md:w-3/4 lg:w-1/2 items-center py-[180px] ">
+        <motion.div
+          variants={fadeIn("right", 0.4)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: false, amount: 0.7 }}
+          className="w-full md:w-3/4 lg:w-1/2 items-center py-[180px] "
+        >
           <div className="relative">
             <div className="space-y-4 text-white px-3">
               <h3 className="text-2xl font-bold leading-none text-[#ff8851] bg-slate-50 rounded inline-block p-2">
@@ -27,7 +34,7 @@ const Banner = () => {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

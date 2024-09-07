@@ -1,5 +1,7 @@
 import SectionHeading from "@/components/SectionHeading";
 import faqImg from "../../assets/according.jpg"
+import { motion } from "framer-motion";
+import { fadeOut } from "../../variants";
 import {
   Accordion,
   AccordionContent,
@@ -18,11 +20,21 @@ const Faq = () => {
           paragraphText="Find answers to your most common camping gear questions!"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 min-h-[600px] my-20 bg-white">
-          <div
+          <motion.div
+            variants={fadeOut("right")}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.7 }}
             className=" hidden md:block  bg-cover bg-position-center bg-no-repeat h-auto w-full"
             style={{ backgroundImage: `url(${faqImg})` }}
-          ></div>
-          <div className="pl-5 lg:pl-10 py-4 rounded">
+          ></motion.div>
+          <motion.div
+            variants={fadeOut("right")}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.7 }}
+            className="pl-5 lg:pl-10 py-4 rounded"
+          >
             <Accordion
               type="single"
               collapsible
@@ -155,7 +167,7 @@ const Faq = () => {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

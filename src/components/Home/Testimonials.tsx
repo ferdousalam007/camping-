@@ -10,7 +10,8 @@ import img3 from "./../../assets/testimonial3.jpg";
 import img4 from "./../../assets/testimonial4.jpg";
 import img5 from "./../../assets/testimonial5.jpg";
 import img6 from "./../../assets/testimonial6.jpg";
-
+import { motion } from "framer-motion";
+import { fadeOut } from "../../variants";
 import {
   Carousel,
   CarouselContent,
@@ -77,7 +78,7 @@ const Testimonials = () => {
   );
   return (
     <div
-      className="bg-cover bg-no-repeat min-h-[700px] w-full py-20 bg-[#2C4A28]"
+      className="bg-cover bg-no-repeat min-h-[700px] w-full py-20 bg-[#2C4A28] overflow-hidden"
       style={{ backgroundImage: `url(${bannerImg})` }}
     >
       <div className="container">
@@ -86,7 +87,14 @@ const Testimonials = () => {
           headingText="Happy Customer"
           paragraphText="See what our happy campers are saying about their experience with us!"
         />
-        <div className="pt-12">
+        <motion.div
+          style={{ clipPath: "inset(0 0 0 0)" }}
+          variants={fadeOut("left")}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: false, amount: 0.7 }}
+          className="pt-12"
+        >
           <Carousel
             opts={{
               align: "end",
@@ -146,7 +154,7 @@ const Testimonials = () => {
             <CarouselPrevious className="absolute top-[110%] left-[40%]  md:left-[45%]" />
             <CarouselNext className="absolute top-[110%]  right-[35%]  md:right-[45%]" />
           </Carousel>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

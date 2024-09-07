@@ -2,7 +2,6 @@
 import ProductCard from "@/components/productCard/ProductCard";
 import { useGetAllproductQuery } from "@/redux/api/baseApi";
 import LeftTitle from "@/components/LeftTitle";
-
 const FeaturedProducts = () => {
  const { data: productsData, isLoading: isProductsLoading } =
    useGetAllproductQuery("");
@@ -23,7 +22,9 @@ const FeaturedProducts = () => {
     <div className="container py-12">
       <LeftTitle firstTitle="Featured" secondTitle="Products" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-hidden"
+      >
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           featuredProducts?.map((product: any) => (
