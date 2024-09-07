@@ -25,7 +25,7 @@ const TeamCard: React.FC<TeamMemberProps> = ({
       variants={fadeOut("right")}
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, amount: 0.7 }}
+      viewport={{ once: false, amount: 0.2 }}
       className="drop-shadow-xl relative overflow-hidden team-box rounded-md"
     >
       <div>

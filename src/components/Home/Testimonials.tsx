@@ -10,8 +10,6 @@ import img3 from "./../../assets/testimonial3.jpg";
 import img4 from "./../../assets/testimonial4.jpg";
 import img5 from "./../../assets/testimonial5.jpg";
 import img6 from "./../../assets/testimonial6.jpg";
-import { motion } from "framer-motion";
-import { fadeOut } from "../../variants";
 import {
   Carousel,
   CarouselContent,
@@ -30,44 +28,44 @@ import React from "react";
 const Testimonial = [
   {
     img: img1,
-    name: "John Doe",
+    name: "Emily R.",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+      "Absolutely love the quality of the camping gear! My last trip was a breeze thanks to Campers Shop. Highly recommend!",
     rating: 5,
   },
   {
     img: img2,
-    name: "John Smith",
+    name: "James T.",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+      "I found everything I needed for my first camping adventure. Great customer service and fast shipping!",
     rating: 4.5,
   },
   {
     img: img3,
-    name: "John Smith",
+    name: "Sarah L.",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+      "The tent I bought was amazing—easy to set up and super durable. Definitely my go-to for all future camping needs.",
     rating: 4,
   },
   {
     img: img4,
-    name: "John Smith",
+    name: "Michael B.",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+      "Campers Shop never disappoints. From hiking boots to cooking gear, they have it all. Can't wait for my next trip!",
     rating: 3.8,
   },
   {
     img: img5,
-    name: "John Smith",
+    name: "Rachel W.",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+      "The best online store for camping enthusiasts! I always find exactly what I need, and the prices are unbeatable.",
     rating: 4.8,
   },
   {
     img: img6,
-    name: "John Smith",
+    name: "Daniel K.",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium",
+      "Campers Shop made my camping trip so much easier! The gear is top-notch, and the customer support was incredibly helpful.",
     rating: 5,
   },
 ];
@@ -87,30 +85,20 @@ const Testimonials = () => {
           headingText="Happy Customer"
           paragraphText="See what our happy campers are saying about their experience with us!"
         />
-        <motion.div
-          style={{ clipPath: "inset(0 0 0 0)" }}
-          variants={fadeOut("left")}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: false, amount: 0.7 }}
-          className="pt-12"
-        >
+        <div>
           <Carousel
             opts={{
               align: "end",
               loop: true,
             }}
             plugins={[plugin.current]}
-            className="container pt-8"
+            className="container pt-14"
           >
             <CarouselContent>
               {Testimonial.map((testimonial, index) => (
-                <CarouselItem
-                  key={index}
-                  className="md:basis-1/2 lg:basis-1/4 "
-                >
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/4">
                   <div className="">
-                    <Card className="border-0 ">
+                    <Card className="border-0">
                       <CardContent className="flex flex-col items-center px-3 py-4 ">
                         <div className="h-[100px] w-[100px]">
                           <img
@@ -136,7 +124,7 @@ const Testimonials = () => {
                             }
                           />
                         </div>
-                        <p className="mt-4 text-center text-base font-medium">
+                        <p className="mt-4 text-center text-base font-medium h-[80px]">
                           {testimonial.description}
                         </p>
 
@@ -154,7 +142,7 @@ const Testimonials = () => {
             <CarouselPrevious className="absolute top-[110%] left-[40%]  md:left-[45%]" />
             <CarouselNext className="absolute top-[110%]  right-[35%]  md:right-[45%]" />
           </Carousel>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

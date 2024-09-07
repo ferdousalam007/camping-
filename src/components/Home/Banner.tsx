@@ -12,7 +12,7 @@ const Banner = () => {
           variants={fadeIn("right", 0.4)}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: false, amount: 0.7 }}
+          viewport={{ once: false, amount: 0.5 }}
           className="w-full md:w-3/4 lg:w-1/2 items-center py-[180px] "
         >
           <div className="relative">

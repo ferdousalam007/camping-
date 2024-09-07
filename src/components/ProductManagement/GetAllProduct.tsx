@@ -157,7 +157,7 @@ const GetAllProduct = () => {
     <div>
       {/* Add Toaster component to render the toast messages */}
       <Toaster position="top-center" richColors />
-      <h1 className="text-3xl font-bold mb-4">Get All Products11</h1>
+      <h1 className="text-3xl font-bold mb-4">Get All Products</h1>
 
       <div className="mb-4">
         <div className="flex flex-wrap items-end">

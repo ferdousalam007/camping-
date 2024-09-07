@@ -17,7 +17,7 @@ const VideoBlogs = () => {
             variants={fadeOut("right")}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: false, amount: 0.7 }}
+            viewport={{ once: false, amount: 0.4 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg relative"
           >
             <div className="w-full h-[325px]">
@@ -43,7 +43,7 @@ const VideoBlogs = () => {
             variants={fadeOut("left")}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: false, amount: 0.7 }}
+            viewport={{ once: false, amount: 0.4 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-4 shadow-custom rounded-lg relative "
           >
             <div className="w-full h-[325px] ">

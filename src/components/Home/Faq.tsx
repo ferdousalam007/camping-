@@ -24,7 +24,7 @@ const Faq = () => {
             variants={fadeOut("right")}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, amount: 0.7 }}
+            viewport={{ once: false, amount: 0.2 }}
             className=" hidden md:block  bg-cover bg-position-center bg-no-repeat h-auto w-full"
             style={{ backgroundImage: `url(${faqImg})` }}
           ></motion.div>
@@ -32,7 +32,7 @@ const Faq = () => {
             variants={fadeOut("right")}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, amount: 0.7 }}
+            viewport={{ once: true, amount: 0.3 }}
             className="pl-5 lg:pl-10 py-4 rounded"
           >
             <Accordion

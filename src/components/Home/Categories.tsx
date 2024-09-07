@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
@@ -17,30 +17,22 @@ import {
 } from "@/redux/api/baseApi";
  // Assuming you have a Modal component
 // Assuming you have a ProductCard component
-import CategoryModal from "@/components/CategoryModal";
-import ProductCard from "@/components/productCard/ProductCard";
+
 import LeftTitle from "@/components/LeftTitle";
 import { Category, Product } from "@/type/type";
-interface ProductCat {
-  _id: string;
-  imageUrl: string[];
-  name: string;
-  description: string;
-  ratings: number;
-  stock: number;
-  price: number;
-  totalSold: number;
-}
+import { useNavigate } from "react-router-dom";
+
 const Categories = () => {
+    const navigate = useNavigate();
+      const handleCategoryClick = (categoryId: string) => {
+        navigate(`/products?category=${categoryId}`);
+      };
+
   const { data: productsData, isLoading: isProductsLoading } =
     useGetAllproductQuery("");
   const { data: categoriesData, isLoading } = useGetCategoriesQuery("");
 
-  // State for modal visibility and selected category
- const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-   null
- );
-  const [isModalOpen, setIsModalOpen] = useState(false);
+ 
 
   // Filter out deleted products
  const validProducts = productsData?.data?.result?.filter(
@@ -59,22 +51,10 @@ const Categories = () => {
     };
   });
 
-  // Open modal with selected category
-  const handleDetailsClick = (category: Category) => {
-    setSelectedCategory(category);
-    setIsModalOpen(true);
-  };
 
-  // Close modal
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedCategory(null);
-  };
+  
 
-  // Filter products based on selected category
-  const productsInCategory = validProducts?.filter(
-    (product: Product) => product.category?._id === selectedCategory?._id
-  );
+
 
   const plugin = React.useRef(
     Autoplay({ delay: 40000000, stopOnInteraction: true })
@@ -116,17 +96,17 @@ if (isProductsLoading) {
                         </div>
                       </CardContent>
                       <div className="bg-[#F9EFE5] rounded-lg pb-4 pt-[150px] mt-[-150px]">
-                        <h3 className="mt-4 text-center text-xl font-medium">
-                          {category.name}
+                        <h3 className="mt-4 text-center text-xl font-bold">
+                          {category.name.charAt(0).toUpperCase() +
+                            category.name.slice(1)}
                         </h3>
-                        <div className="mt-2 text-center">
-                          Total Products: {category?.productCount}
-                        </div>
 
-                        <CardFooter className="flex justify-center p-4">
+                        <CardFooter className="flex justify-center p-4 ">
                           <Button
-                            className="mt-4 bg-[#1b352c] text-white"
-                            onClick={() => handleDetailsClick(category)}
+                            className="px-8 py-3  bg-[#ff8851] text-black rounded-full shadow-lg hover:bg-[#181c20] hover:text-white transition duration-300"
+                            onClick={() =>
+                              handleCategoryClick(category?._id ?? "")
+                            }
                           >
                             Details
                           </Button>
@@ -141,38 +121,6 @@ if (isProductsLoading) {
             <CarouselNext className="absolute top-[110%] right-[35%] md:right-[45%]" />
           </Carousel>
         </div>
-
-        {/* Modal to show products under selected category */}
-        {isModalOpen && (
-          <CategoryModal onClose={handleCloseModal}>
-            <h2 className="text-2xl mb-4">
-              Category:1 {selectedCategory?.name}
-            </h2>
-            {productsInCategory?.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 h-[450px] overflow-y-auto">
-                {productsInCategory?.map((product: ProductCat) => (
-                  <ProductCard
-                    key={product?._id}
-                    image={product?.imageUrl ? `${product.imageUrl[0]}` : ""}
-                    title={`${product?.name}`}
-                    description={`${product?.description}`}
-                    rating={product?.ratings}
-                    stock={product?.stock}
-                    id={product?._id}
-                    recommended
-                    price={product?.price}
-                    totalSold={product?.totalSold}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p>No products found in this category.</p>
-            )}
-            <Button onClick={handleCloseModal} className="mt-4">
-              Close
-            </Button>
-          </CategoryModal>
-        )}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
+import { useSearchParams } from "react-router-dom";
 import {
   useGetCategoriesQuery,
   useGetProductsQuery,
@@ -50,10 +50,13 @@ function useDebounce(value: string, delay: number) {
 }
 
 const Products = () => {
+  const [searchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get("category") || "all"; // Default to "all" if no category is selected
+  const [category, setCategory] = useState(categoryFromUrl);
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+  // const [category, setCategory] = useState("all");
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [sort, setSort] = useState<"none" | "asc" | "desc">("none");
@@ -62,6 +65,7 @@ const Products = () => {
 
   const debouncedSearch = useDebounce(search, 1000); // 1 second debounce
 
+  // Fetch products based on search, category, price, etc.
   const {
     data: productsData,
     isLoading,
@@ -76,7 +80,10 @@ const Products = () => {
     page,
     limit,
   });
-
+  // Use `useEffect` to sync the category state with URL changes
+  useEffect(() => {
+    setCategory(categoryFromUrl); // Sync category state with the URL
+  }, [categoryFromUrl]);
   const products = (productsData as any)?.data?.result;
   const apiLimit = (productsData as any)?.data?.limit;
   const apiTotal = (productsData as any)?.data?.total;

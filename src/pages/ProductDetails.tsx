@@ -108,13 +108,13 @@ const ProductDetails = () => {
                 <div className="text-gray-900 mb-4">
                   <h2 className="text-2xl font-bold  mb-2">{name}</h2>
                   <p className="mb-2">
-                    <span className="font-semibold text-[15px] text-[#474747]">
-                      Description: {description}
+                    <span className="font-semibold text-[20px]">
+                      Price: $ {price}
                     </span>
                   </p>
                   <p className="mb-2">
-                    <span className="font-semibold text-[20px]">
-                      Price: $ {price}
+                    <span className="font-semibold text-[15px] text-[#474747]">
+                      Description: <span className="text-[14px] font-medium">{description}</span>
                     </span>
                   </p>
                   <p className="mb-4">
