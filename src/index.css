@@ -71,7 +71,7 @@
 
 body {
 font-family: 'Satoshi', sans-serif;
-
+overflow-x: hidden;
 }
   nav{
 z-index: 1 !important;

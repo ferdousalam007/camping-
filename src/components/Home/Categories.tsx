@@ -98,7 +98,7 @@ if (isProductsLoading) {
                       <div className="bg-[#F9EFE5] rounded-lg pb-4 pt-[150px] mt-[-150px]">
                         <h3 className="mt-4 text-center text-xl font-bold">
                           {category.name.charAt(0).toUpperCase() +
-                            category.name.slice(1)}
+                            category.name.slice(1).toLowerCase()}
                         </h3>
 
                         <CardFooter className="flex justify-center p-4 ">

@@ -54,7 +54,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <img
             src={image}
             alt={title}
-            className="h-[150px] w-full object-cover"
+            className="h-[250px] w-full object-cover"
           />
           <h3 className="mt-4 text-center text-base font-medium text-[#22262A]">
             {title}

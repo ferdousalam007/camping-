@@ -11,17 +11,25 @@ import {
 import { NavigationMenuLink } from "@/components/ui/navigation-menu";
 import { AlignJustify, ShoppingCart, Tent } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+
+
+
 import WishListDropdown from "@/components/WishList/WishListDropdown";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { useState } from "react";
 
-
+ 
 const MobileNavbar = () => {
+   const [isOpen, setIsOpen] = useState(false); 
+   const handleLinkClick = () => {
+     setIsOpen(false);
+   };
     const cart = useSelector((state: RootState) => state.cart);
     const wishList = useSelector((state: RootState) => state.cart.wishList);
   const location = useLocation();
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <AlignJustify className="cursor-pointer text-white inline-block lg:hidden" />
       </SheetTrigger>
@@ -38,6 +46,7 @@ const MobileNavbar = () => {
         </SheetHeader>
         <div className=" py-4">
           <Link
+            onClick={handleLinkClick}
             to="/"
             className={` ${location.pathname === "/" ? "bg-gray-800" : ""}
             block px-4 py-2 rounded-md text-white text-center`}
@@ -45,6 +54,7 @@ const MobileNavbar = () => {
             Home
           </Link>
           <Link
+            onClick={handleLinkClick}
             to="/aboutus"
             className={` ${
               location.pathname === "/aboutus" ? "bg-gray-800" : ""
@@ -54,6 +64,7 @@ const MobileNavbar = () => {
             Aboutus
           </Link>
           <Link
+            onClick={handleLinkClick}
             to="/products"
             className={` ${
               location.pathname === "/products" ? "bg-gray-800" : ""
@@ -63,6 +74,7 @@ const MobileNavbar = () => {
             Products
           </Link>
           <Link
+            onClick={handleLinkClick}
             to="/cart"
             className={` ${location.pathname === "/cart" ? "bg-gray-800" : ""}
             block px-4 py-2 rounded-md text-white text-center`}
@@ -70,6 +82,7 @@ const MobileNavbar = () => {
             Cart
           </Link>
           <Link
+            onClick={handleLinkClick}
             to="/productmanagement"
             className={` ${
               location.pathname === "/productmanagement" ? "bg-gray-800" : ""
@@ -79,7 +92,7 @@ const MobileNavbar = () => {
             Product Management
           </Link>
           <div className="flex justify-center items-center mt-3">
-            <Link to="/cart">
+            <Link onClick={handleLinkClick} to="/cart">
               <NavigationMenuLink className="group mr-3 inline-flex relative top-2 h-10 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors  hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 hover:bg-[#ff8953]">
                 <ShoppingCart className="cursor-pointer w-5 text-white" />
                 {cart.items.length > 0 && (

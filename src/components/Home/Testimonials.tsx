@@ -92,7 +92,7 @@ const Testimonials = () => {
               loop: true,
             }}
             plugins={[plugin.current]}
-            className="container pt-14"
+            className="pt-14"
           >
             <CarouselContent>
               {Testimonial.map((testimonial, index) => (

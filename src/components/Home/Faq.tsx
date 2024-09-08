@@ -33,7 +33,7 @@ const Faq = () => {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
-            className="pl-5 lg:pl-10 py-4 rounded"
+            className="pl-5 pr-3 lg:pl-10 py-4 rounded"
           >
             <Accordion
               type="single"

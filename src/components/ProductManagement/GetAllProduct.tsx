@@ -332,7 +332,10 @@ const GetAllProduct = () => {
                 />
               </TableCell>
               <TableCell>{product?.name}</TableCell>
-              <TableCell>{product?.category?.name}</TableCell>
+              <TableCell>
+                {product?.category?.name.charAt(0).toUpperCase() +
+                  product?.category?.name.slice(1).toLowerCase()}
+              </TableCell>
               <TableCell className="text-right">${product?.price}</TableCell>
               <TableCell className="text-right">
                 <Trash2
@@ -403,7 +406,10 @@ const GetAllProduct = () => {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button className="bg-[#ff8851] mt-3 sm:mt-0" onClick={handleDeleteProduct}>
+              <Button
+                className="bg-[#ff8851] mt-3 sm:mt-0"
+                onClick={handleDeleteProduct}
+              >
                 OK
               </Button>
               <Button
