@@ -100,11 +100,11 @@ const ProductDetails = () => {
 
       {/* Add the ref to the container section */}
       <div ref={containerRef} className="container py-14">
-        <div className="flex flex-col items-center p-4  text-black ">
-          <div className="max-w-6xl w-full  rounded-lg shadow-lg p-6 animate__animated animate__fadeIn">
+        <div className="flex flex-col items-center   text-black ">
+          <div className="max-w-6xl w-full  rounded-lg shadow-lg py-6 px-4 animate__animated animate__fadeIn">
             <div className="grid grid-cols-1  md:grid-cols-2 gap-5">
               <ProductSlider imageUrls={imageUrl} />
-              <div className="flex flex-col justify-between pl-4">
+              <div className="flex flex-col justify-between pl-0 md:pl-4">
                 <div className="text-gray-900 mb-4">
                   <h2 className="text-2xl font-bold  mb-2">{name}</h2>
                   <p className="mb-2">

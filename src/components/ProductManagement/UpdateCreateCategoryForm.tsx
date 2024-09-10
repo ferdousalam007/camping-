@@ -2,10 +2,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
+import { toast, Toaster } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCreateCategoryMutation } from "@/redux/api/baseApi";
+import { useEffect } from "react";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -43,14 +44,23 @@ const UpdateCreateCategoryForm: React.FC<UpdateCreateCategoryFormProps> = ({
 
     await createCategory(formData);
 
-    if (isSuccess) {
-      reset();
-      // onClose();
-    }
+    // if (isSuccess) {
+    //   reset();
+      
+    // }
   };
-
+useEffect(() => {
+  if (isSuccess) {
+    const handleSuccess = () => {
+      reset();
+      onCloseCategory();
+    };
+    handleSuccess();
+  }
+}, [isSuccess, onCloseCategory, reset]);
   return (
     <div>
+      <Toaster position="top-center" richColors />
       <h1 className="text-3xl font-bold mb-4">Create Category</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
@@ -90,15 +100,17 @@ const UpdateCreateCategoryForm: React.FC<UpdateCreateCategoryFormProps> = ({
         <Button
           type="submit"
           disabled={isLoading}
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className={`mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+            isLoading ? "bg-gray-400" : "bg-[#1b352c] hover:bg-[#ff8851]"
+          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
         >
-          Submit
+          {isLoading ? "Updating..." : "Create Category"}
         </Button>
         <Button
           type="submit"
           onClick={onCloseCategory}
           disabled={isLoading}
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-[#ff8851] hover:bg-[#1b352c] focus:ring-[#ff8851] hover:text-white"
         >
           Close
         </Button>
@@ -110,9 +122,8 @@ const UpdateCreateCategoryForm: React.FC<UpdateCreateCategoryFormProps> = ({
               : (error as ErrorData)?.message || "Something went wrong"}
           </p>
         )}
-        {isSuccess && (
-          <p className="mt-2 text-green-600">Category created successfully!</p>
-        )}
+        {isSuccess &&
+          toast.success("Category created successfully!", { duration: 2000 })}
       </form>
     </div>
   );

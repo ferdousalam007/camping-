@@ -2,7 +2,6 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
 
@@ -21,11 +20,7 @@ const CreateCategoryDialog: React.FC<UpdateProductCategoryProps> = ({
       <Dialog open={isOpenCategory} onOpenChange={onCloseCategory}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              <h1 className="text-2xl font-medium mb-4">
-                Create Category for Update Product
-              </h1>
-            </DialogTitle>
+           
             <DialogClose />
           </DialogHeader>
           {/* <UpdateForm selectedProduct={selectedProduct} onClose={onClose} /> */}

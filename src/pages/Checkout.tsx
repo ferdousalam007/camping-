@@ -12,7 +12,7 @@ import {
   clearCart,
 } from "@/redux/slice/cartSlice";
 import {
-  useGetAllproductQuery,
+  useGetProductsWithoutQueryQuery,
   useCreateOrderMutation,
 } from "@/redux/api/baseApi";
 import { useForm, Controller } from "react-hook-form";
@@ -58,8 +58,8 @@ const Checkout = () => {
   const navigate = useNavigate();
   const cartItems = useSelector((state: RootState) => state.cart.items);
 
-  const { data: productsData } = useGetAllproductQuery("");
-  const products: Product[] | undefined = productsData?.data.result;
+  const { data: productsData } = useGetProductsWithoutQueryQuery("");
+  const products: Product[] | undefined = productsData?.data;
 
   const {
     control,
@@ -266,7 +266,14 @@ const Checkout = () => {
                       );
                     return (
                       <TableRow key={item.id}>
-                        <TableCell className="font-bold">
+                        <TableCell className="font-medium flex gap-1 flex-wrap align-middle">
+                          <img
+                            className="w-[40px] h-[40px] object-cover"
+                            src={
+                              product?.imageUrl ? `${product.imageUrl[0]}` : ""
+                            }
+                            alt={product.name}
+                          />
                           {product.name}
                         </TableCell>
                         <TableCell>${product.price.toFixed(2)}</TableCell>
@@ -304,7 +311,7 @@ const Checkout = () => {
                           </Button>
                           <Button
                             onClick={() => handleRemove(item.id)}
-                            className="py-1 px-2 rounded bg-[#1b352c] text-white hover:bg-[#ff8851] font-medium"
+                            className="py-1 px-2 mt-1 sm:mt-0 rounded bg-[#1b352c] text-white hover:bg-[#ff8851] font-medium"
                           >
                             Remove
                           </Button>
@@ -315,16 +322,15 @@ const Checkout = () => {
                 </TableBody>
                 <TableFooter>
                   <TableRow>
-                    <TableCell
-                      className="font-bold text-[#1b352c] text-xl"
-                      colSpan={3}
-                    >
+                    <TableCell className="font-bold text-[#1b352c] text-xl">
                       Total
                     </TableCell>
-                    <TableCell className="text-right font-bold text-[#1b352c] text-xl">
+                    <TableCell
+                      colSpan={3}
+                      className="text-right font-bold text-[#1b352c] text-xl"
+                    >
                       $ {totalPrice?.toFixed(2)}
                     </TableCell>
-                   
                   </TableRow>
                 </TableFooter>
               </Table>

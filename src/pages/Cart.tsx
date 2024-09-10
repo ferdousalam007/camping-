@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useGetAllproductQuery } from "@/redux/api/baseApi";
+import { useGetProductsWithoutQueryQuery } from "@/redux/api/baseApi";
 import {
   clearCart,
   decreaseQuantity,
@@ -32,9 +32,10 @@ const Cart = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart);
 
-  const { data, isLoading } = useGetAllproductQuery("");
-  const products = data?.data.result;
-
+  const { data, isLoading } = useGetProductsWithoutQueryQuery("");
+  const products = data?.data;
+console.log(data?.data);
+console.log(data);
   const handleConfirmRemove = () => {
     if (itemToRemove) {
       dispatch(removeFromCart(itemToRemove));
@@ -70,7 +71,7 @@ const Cart = () => {
   };
 
   const totalPrice = cartItems.items?.reduce((total: any, item: any) => {
-    const product = products.find((p: any) => p._id === item.id);
+    const product = products?.find((p: any) => p._id === item.id);
     return total + (product ? product.price * item.quantity : 0);
   }, 0);
 
@@ -105,12 +106,19 @@ const Cart = () => {
               </TableHeader>
               <TableBody>
                 {cartItems.items?.map((item: any) => {
-                  const product = products.find((p: any) => p._id === item.id);
+                  const product = products?.find((p: any) => p._id === item.id);
 
                   if (!product) return "No product found";
                   return (
                     <TableRow key={item.id}>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium flex gap-1 flex-wrap align-middle">
+                        <img
+                          className="w-[40px] h-[40px] object-cover"
+                          src={
+                            product?.imageUrl ? `${product.imageUrl[0]}` : ""
+                          }
+                          alt={product.name}
+                        />
                         {product.name}
                       </TableCell>
                       <TableCell>${product.price}</TableCell>
@@ -144,7 +152,7 @@ const Cart = () => {
                         </button>
 
                         <button
-                          className="py-1 px-2 rounded bg-[#1b352c] text-white hover:bg-[#ff8851] font-medium"
+                          className="py-1 px-2 mt-1 sm:mt-0 rounded bg-[#1b352c] text-white hover:bg-[#ff8851] font-medium"
                           onClick={() => handleRemove(item.id)}
                         >
                           Remove
@@ -158,11 +166,14 @@ const Cart = () => {
                 <TableRow>
                   <TableCell
                     className="font-bold text-[#1b352c] text-xl"
-                    colSpan={3}
+                    // colSpan={}
                   >
                     Total
                   </TableCell>
-                  <TableCell className="text-right font-bold text-[#1b352c] text-xl">
+                  <TableCell
+                    colSpan={3}
+                    className="text-right font-bold text-[#1b352c] text-xl"
+                  >
                     $ {totalPrice?.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right ">

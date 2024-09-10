@@ -25,7 +25,7 @@ import {
 } from "@/redux/api/baseApi";
 import {  TApiResponse } from "@/type/type";
 import { FilePenLine, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UpdateProductDialog from "./UpdateProductDialog";
 // import CreateCategoryDialog from "./CreateCategoryDialog";
 import {
@@ -47,7 +47,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast, Toaster } from "sonner";
+// Debounce hook
+function useDebounce(value: string, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 const GetAllProduct = () => {
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategoriesQuery("");
@@ -65,14 +80,14 @@ const GetAllProduct = () => {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete confirmation modal
   const [productToDelete, setProductToDelete] = useState<string | null>(null); // State for the product to delete
-
+const debouncedSearch = useDebounce(search, 500); 
   const {
     data: products,
     isLoading,
     isError,
     refetch,
   } = useGetAllProductsQuery<TApiResponse>({
-    search,
+    search: debouncedSearch,
     category,
     minPrice,
     maxPrice,
@@ -187,12 +202,9 @@ const GetAllProduct = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <Select
-                    value={category ?? ""}
-                    onValueChange={(value) => setCategory(value ?? "")}
-                  >
-                    {/* ... */}
-                  </Select>
+                  <SelectLabel>Categories</SelectLabel>
+                  <SelectItem value="all">All Categories</SelectItem>
+
                   {categories?.data.map(
                     (category: { _id: string; name: string }) => (
                       <SelectItem key={category._id} value={category._id}>
@@ -254,6 +266,8 @@ const GetAllProduct = () => {
                   >
                     Sort by Price
                   </Select> */}
+                  <SelectLabel>Sort</SelectLabel>
+                  <SelectItem value="none">Sort by Price</SelectItem>
                   <SelectItem value="asc">Ascending</SelectItem>
                   <SelectItem value="desc">Descending</SelectItem>
                 </SelectGroup>
@@ -350,42 +364,48 @@ const GetAllProduct = () => {
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter>
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                {page === 1 ? (
-                  "Previous"
-                ) : (
-                  <PaginationPrevious
-                    href="#"
-                    onClick={() => handlePageChange(page - 1)}
-                  />
-                )}
-              </PaginationItem>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <PaginationItem key={index + 1}>
-                  <PaginationLink
-                    href="#"
-                    isActive={page === index + 1}
-                    onClick={() => handlePageChange(index + 1)}
-                  >
-                    {index + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                {page === totalPages ? (
-                  "Next"
-                ) : (
-                  <PaginationNext
-                    href="#"
-                    onClick={() => handlePageChange(page + 1)}
-                  />
-                )}
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+        <TableFooter className="text-center">
+          <TableRow>
+            <TableCell colSpan={5}>
+              <div className="flex justify-center mt-4">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      {page === 1 ? (
+                        "Previous"
+                      ) : (
+                        <PaginationPrevious
+                          href="#"
+                          onClick={() => handlePageChange(page - 1)}
+                        />
+                      )}
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                      <PaginationItem key={index + 1}>
+                        <PaginationLink
+                          href="#"
+                          isActive={page === index + 1}
+                          onClick={() => handlePageChange(index + 1)}
+                        >
+                          {index + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      {page === totalPages ? (
+                        "Next"
+                      ) : (
+                        <PaginationNext
+                          href="#"
+                          onClick={() => handlePageChange(page + 1)}
+                        />
+                      )}
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            </TableCell>
+          </TableRow>
         </TableFooter>
       </Table>
       <UpdateProductDialog

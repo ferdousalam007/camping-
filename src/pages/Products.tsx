@@ -63,7 +63,7 @@ const Products = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  const debouncedSearch = useDebounce(search, 1000); // 1 second debounce
+  const debouncedSearch = useDebounce(search, 500); 
 
   // Fetch products based on search, category, price, etc.
   const {

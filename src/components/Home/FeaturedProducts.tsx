@@ -1,17 +1,17 @@
 
 import ProductCard from "@/components/productCard/ProductCard";
-import { useGetAllproductQuery } from "@/redux/api/baseApi";
+import { useGetProductsWithoutQueryQuery } from "@/redux/api/baseApi";
 import LeftTitle from "@/components/LeftTitle";
 const FeaturedProducts = () => {
  const { data: productsData, isLoading: isProductsLoading } =
-   useGetAllproductQuery("");
- const products = productsData?.data.result;
+   useGetProductsWithoutQueryQuery("");
+ const products = productsData?.data;
 
  // Filter the products to only include recommended ones
  const featuredProducts = products
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    ?.filter((product: any) => product?.featured && !product?.isDeleted)
-   .slice(-4);
+   .slice(-4).reverse();
 
   
  if (isProductsLoading) {

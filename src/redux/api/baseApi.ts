@@ -36,6 +36,14 @@ export const baseApi = createApi({
            }),
            providesTags: ['Order'], 
         }),
+        getProductsWithoutQuery: builder.query({
+           query: () => ({
+               url: '/products/all',
+               method: 'GET',
+               credentials: 'include'
+           }),
+           providesTags: ['Product'], 
+        }),
         getAllproduct: builder.query({
             query: () => ({
                 url: '/products',
@@ -147,5 +155,6 @@ export const {
     useCreateOrderMutation,
     useGetAllproductQuery,
     useGetAllOrderQuery,
+    useGetProductsWithoutQueryQuery,
 
 } = baseApi;

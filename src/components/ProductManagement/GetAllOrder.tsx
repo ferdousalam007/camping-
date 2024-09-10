@@ -34,7 +34,7 @@ const GetAllOrder = () => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
       setCurrentPage(1); // Reset to first page on new search
-    }, 700); // 1-second debounce
+    }, 400); // 1-second debounce
 
     return () => {
       clearTimeout(handler);

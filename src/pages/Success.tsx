@@ -16,6 +16,7 @@ interface Product {
   _id: string;
   name: string;
   price: number;
+  imageUrl?: string;
 }
 
 interface CartItem {
@@ -88,7 +89,14 @@ const breadcrumbs = [
 
               return (
                 <TableRow key={item.id}>
-                  <TableCell>{product.name}</TableCell>
+                  <TableCell className="font-medium flex gap-1 flex-wrap align-middle">
+                    <img
+                      className="w-[40px] h-[40px] object-cover"
+                      src={product?.imageUrl ? `${product.imageUrl[0]}` : ""}
+                      alt={product.name}
+                    />
+                    {product.name}
+                  </TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
                   <TableCell>
